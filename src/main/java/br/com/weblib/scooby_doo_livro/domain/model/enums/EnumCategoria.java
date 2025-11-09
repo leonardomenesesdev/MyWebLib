@@ -1,4 +1,4 @@
-package br.com.weblib.scooby_doo_livro.model.enums;
+package br.com.weblib.scooby_doo_livro.domain.model.enums;
 
 public enum EnumCategoria {
     FICCAO("Ficção"),

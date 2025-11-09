@@ -1,4 +1,4 @@
-package br.com.weblib.scooby_doo_livro.model;
+package br.com.weblib.scooby_doo_livro.domain.model;
 
 import java.util.Date;
 

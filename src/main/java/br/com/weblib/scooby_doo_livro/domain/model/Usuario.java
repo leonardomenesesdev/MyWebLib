@@ -1,19 +1,15 @@
-package br.com.weblib.scooby_doo_livro.model;
+package br.com.weblib.scooby_doo_livro.domain.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
-
 @Data
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Comentario {
+public class Usuario {
     private Long id;
-    private Long idUsuario;
-    private Long idLivro;
-    private String conteudo;
-    private Date data;
-
+    private String nome;
+    private String email;
+    private String hashSenha;
 }

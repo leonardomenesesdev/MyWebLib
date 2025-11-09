@@ -1,16 +1,19 @@
-package br.com.weblib.scooby_doo_livro.model;
+package br.com.weblib.scooby_doo_livro.domain.model;
 
-import br.com.weblib.scooby_doo_livro.model.enums.EnumStatusLeitura;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 @Data
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class StatusLeitura {
+public class Comentario {
     private Long id;
-    private Long idLivro;
     private Long idUsuario;
-    private EnumStatusLeitura statusLeitura;
+    private Long idLivro;
+    private String conteudo;
+    private Date data;
+
 }

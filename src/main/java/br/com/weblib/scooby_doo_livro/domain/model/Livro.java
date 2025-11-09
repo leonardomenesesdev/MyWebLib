@@ -1,6 +1,6 @@
-package br.com.weblib.scooby_doo_livro.model;
+package br.com.weblib.scooby_doo_livro.domain.model;
 
-import br.com.weblib.scooby_doo_livro.model.enums.EnumCategoria;
+import br.com.weblib.scooby_doo_livro.domain.model.enums.EnumCategoria;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.NoArgsConstructor;
