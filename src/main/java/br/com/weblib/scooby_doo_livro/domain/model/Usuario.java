@@ -22,4 +22,5 @@ public class Usuario implements Identifiable {
     private String nome;
     private String email;
     private String hashSenha;
+    private boolean isAdmin;
 }
