@@ -7,7 +7,6 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
 import java.util.List;
 
 @Data
@@ -15,15 +14,28 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Entity
 public class Livro implements Identifiable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(length = 500)  // Aumenta limite para títulos longos
     private String titulo;
+
+    @Column(length = 500)  // Aumenta limite para múltiplos autores
     private String autor;
+
+    @Column(length = 1000) // URLs de imagem podem ser longas
     private String capa;
+
     private Integer ano;
+
+    @Column(length = 2000) // Sinopses costumam ser longas
     private String sinopse;
+
     @ElementCollection(targetClass = EnumCategoria.class)
     @Enumerated(EnumType.STRING)
+    @CollectionTable(name = "livro_categorias", joinColumns = @JoinColumn(name = "livro_id"))
+    @Column(name = "categoria")
     private List<EnumCategoria> categorias;
 }
