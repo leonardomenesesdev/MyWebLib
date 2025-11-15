@@ -2,24 +2,35 @@ package br.com.weblib.scooby_doo_livro.domain.model;
 
 import br.com.weblib.scooby_doo_livro.domain.model.interfaces.Identifiable;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Entity
+@Table(
+        name = "livro_favoritado",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"id_livro", "id_usuario"})
+)
 public class LivroFavoritado implements Identifiable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long idLivro;
-    private Long idUsuario;
-    private Date dataAdicao;
+
+    @ManyToOne
+    @JoinColumn(name = "id_livro")
+    @JsonIgnoreProperties({"favoritos", "avaliacoes", "comentarios"})
+    private Livro livro;
+
+    @ManyToOne
+    @JoinColumn(name = "id_usuario")
+    @JsonIgnoreProperties({"favoritos"})
+    private Usuario usuario;
+
+    private LocalDateTime dataAdicao;
 }

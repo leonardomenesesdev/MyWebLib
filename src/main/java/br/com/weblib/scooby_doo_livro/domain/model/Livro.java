@@ -3,10 +3,7 @@ package br.com.weblib.scooby_doo_livro.domain.model;
 import br.com.weblib.scooby_doo_livro.domain.model.enums.EnumCategoria;
 import br.com.weblib.scooby_doo_livro.domain.model.interfaces.Identifiable;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -23,7 +20,9 @@ public class Livro implements Identifiable {
     private Long id;
     private String titulo;
     private String autor;
-    private Date ano;
+    private Integer ano;
     private String sinopse;
+    @ElementCollection(targetClass = EnumCategoria.class)
+    @Enumerated(EnumType.STRING)
     private List<EnumCategoria> categorias;
 }

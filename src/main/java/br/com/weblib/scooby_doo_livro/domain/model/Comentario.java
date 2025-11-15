@@ -2,10 +2,7 @@ package br.com.weblib.scooby_doo_livro.domain.model;
 
 import br.com.weblib.scooby_doo_livro.domain.model.interfaces.Identifiable;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -19,8 +16,12 @@ public class Comentario implements Identifiable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long idUsuario;
-    private Long idLivro;
+    @ManyToOne
+    @JoinColumn(name = "id_usuario")
+    private Usuario usuario;
+    @ManyToOne
+    @JoinColumn(name = "id_livro")
+    private Livro livro;
     private String conteudo;
     private Date data;
 
