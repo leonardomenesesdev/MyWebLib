@@ -20,6 +20,7 @@ public class Livro implements Identifiable {
     private Long id;
     private String titulo;
     private String autor;
+    private String capa;
     private Integer ano;
     private String sinopse;
     @ElementCollection(targetClass = EnumCategoria.class)
