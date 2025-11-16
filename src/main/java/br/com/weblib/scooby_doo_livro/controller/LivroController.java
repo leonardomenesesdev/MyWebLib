@@ -36,4 +36,5 @@ public class LivroController {
     public ResponseEntity<List<Livro>> buscarPorAutor(@PathVariable String autor){
         return ResponseEntity.ok(livroService.getByAutor(autor));
     }
+
 }
