@@ -13,43 +13,43 @@ import javax.security.sasl.AuthenticationException;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class LivroService {
+
     private final LivroRepository livroRepository;
 
-    public LivroService(LivroRepository livroRepository) {
-        this.livroRepository = livroRepository;
-    }
-
-    public List<Livro> listarLivros(){
+    public List<Livro> listarLivros() {
         return livroRepository.findAll();
     }
 
-    public Livro getLivroById(Long id){
-        return livroRepository.findById(id).orElseThrow();
+    public Livro getLivroById(Long id) {
+        return livroRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Livro não encontrado com ID: " + id));
     }
 
-    public List<Livro> buscarPorTitulo(String titulo){
+    public List<Livro> buscarPorTitulo(String titulo) {
         return livroRepository.findByTituloContainingIgnoreCase(titulo);
     }
 
-    public List<Livro> getByAutor(String autor){
+    public List<Livro> getByAutor(String autor) {
         return livroRepository.findByAutorContainingIgnoreCase(autor);
     }
 
-    public List<Livro> getByCategoria(EnumCategoria categoria){
+    public List<Livro> buscarPorCategoria(EnumCategoria categoria) {
         return livroRepository.findByCategoriasContaining(categoria);
     }
 
-    public Livro cadastrar(Livro livro, Usuario usuario) throws AuthenticationException {
-            validarLivro(livro);
-            if(livroRepository.existsByTituloAndAutor(livro.getTitulo(), livro.getAutor())){
-                throw new RuntimeException("Livro já cadastrado: " + livro.getTitulo());
-            }
-            return livroRepository.save(livro);
+    public Livro cadastrar(Livro livro) {
+        validarLivro(livro);
+
+        if (livroRepository.existsByTituloAndAutor(livro.getTitulo(), livro.getAutor())) {
+            throw new IllegalArgumentException("Livro já cadastrado: " + livro.getTitulo());
+        }
+
+        return livroRepository.save(livro);
     }
 
-
-    private void validarLivro(Livro livro) {
+    private void validarLivro(Livro livro) throws IllegalArgumentException{
         if (livro.getTitulo() == null || livro.getTitulo().trim().isEmpty()) {
             throw new IllegalArgumentException("Título é obrigatório");
         }
@@ -59,24 +59,35 @@ public class LivroService {
         if (livro.getCategorias() == null || livro.getCategorias().isEmpty()) {
             throw new IllegalArgumentException("Pelo menos uma categoria é obrigatória");
         }
-        if (livro.getAno() != null && (livro.getAno() < 0 || livro.getAno() > 2025)) {
+
+        int anoAtual = java.time.Year.now().getValue();
+
+        if (livro.getAno() != null && (livro.getAno() < 0 || livro.getAno() > anoAtual)) {
             throw new IllegalArgumentException("Ano de publicação inválido");
         }
     }
 
-    public Livro atualizar(Long id, Livro livroAtualizado){
+    public Livro atualizar(Long id, Livro livroAtualizado) {
         Livro livroExistente = getLivroById(id);
+
         validarLivro(livroAtualizado);
-        return livroRepository.save(livroAtualizado);
+
+        // Atualiza somente os campos permitidos
+        livroExistente.setTitulo(livroAtualizado.getTitulo());
+        livroExistente.setAutor(livroAtualizado.getAutor());
+        livroExistente.setCapa(livroAtualizado.getCapa());
+        livroExistente.setAno(livroAtualizado.getAno());
+        livroExistente.setCategorias(livroAtualizado.getCategorias());
+        livroExistente.setSinopse(livroAtualizado.getSinopse());
+
+        return livroRepository.save(livroExistente);
     }
 
-    public void delete(Long id){
-        try {
-            livroRepository.deleteById(id);
-        } catch (EmptyResultDataAccessException e) {
-            e.getMessage();
+    public void delete(Long id) {
+        if (!livroRepository.existsById(id)) {
+            throw new IllegalArgumentException("Não existe livro com ID: " + id);
         }
-
+        livroRepository.deleteById(id);
     }
 }
 

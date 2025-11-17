@@ -32,11 +32,13 @@ public class GlobalExceptionHandler {
     ) {
         br.com.weblib.scooby_doo_livro.domain.model.ApiErrorResponse errorResponse = new br.com.weblib.scooby_doo_livro.domain.model.ApiErrorResponse(
                 HttpStatus.NOT_FOUND.value(),
-                "Livro inválido",
+                "Entrada inválida",
                 e.getMessage(),
                 request.getRequestURI()
         );
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
     }
+
+
 }

@@ -1,14 +1,13 @@
 package br.com.weblib.scooby_doo_livro.controller;
 
 import br.com.weblib.scooby_doo_livro.domain.model.Livro;
+import br.com.weblib.scooby_doo_livro.domain.model.enums.EnumCategoria;
 import br.com.weblib.scooby_doo_livro.domain.service.LivroService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.security.sasl.AuthenticationException;
 import java.util.List;
 
 @RestController
@@ -36,5 +35,30 @@ public class LivroController {
     public ResponseEntity<List<Livro>> buscarPorAutor(@PathVariable String autor){
         return ResponseEntity.ok(livroService.getByAutor(autor));
     }
+
+    @GetMapping("/filtrar/{categoria}")
+    public ResponseEntity<List<Livro>> buscarPorCategoria(@PathVariable EnumCategoria categoria) {
+        List<Livro> livros = livroService.buscarPorCategoria(categoria);
+        return ResponseEntity.ok(livros);
+    }
+
+    @PostMapping()
+    public ResponseEntity<Livro> create(@RequestBody Livro livro) {
+        Livro novoLivro = livroService.cadastrar(livro);
+        return ResponseEntity.ok(novoLivro);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Livro> update(@PathVariable Long id, @RequestBody Livro livroAtualizado) throws AuthenticationException {
+        Livro livro = livroService.atualizar(id, livroAtualizado);
+        return ResponseEntity.ok(livro);
+    }
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Long id) {
+        livroService.delete(id);
+    }
+
+
 
 }
