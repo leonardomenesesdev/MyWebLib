@@ -12,6 +12,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*")
 @RequestMapping("/api/livro")
 public class LivroController {
     private final LivroService livroService;
@@ -26,10 +27,15 @@ public class LivroController {
         return ResponseEntity.ok(livroService.getLivroById(id));
     }
 
+    @GetMapping("/pesquisar/{termo}")
+    public ResponseEntity<List<Livro>> getByAutorOrTitulo(@PathVariable String termo){
+        return ResponseEntity.ok().body(livroService.getByAutorOrTitulo(termo));
+    }
     @GetMapping("/titulo/{titulo}")
     public ResponseEntity<List<Livro>> buscarPorTitulo(@PathVariable String titulo){
         return ResponseEntity.ok(livroService.buscarPorTitulo(titulo));
     }
+
 
     @GetMapping("/buscar/{autor}")
     public ResponseEntity<List<Livro>> buscarPorAutor(@PathVariable String autor){

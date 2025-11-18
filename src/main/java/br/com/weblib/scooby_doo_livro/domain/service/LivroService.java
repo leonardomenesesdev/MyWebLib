@@ -35,6 +35,9 @@ public class LivroService {
         return livroRepository.findByAutorContainingIgnoreCase(autor);
     }
 
+    public List<Livro> getByAutorOrTitulo(String termo){
+        return livroRepository.findByAutorContainingIgnoreCaseOrTituloContainingIgnoreCase(termo, termo);
+    }
     public List<Livro> buscarPorCategoria(EnumCategoria categoria) {
         return livroRepository.findByCategoriasContaining(categoria);
     }
