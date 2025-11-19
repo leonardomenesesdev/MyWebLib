@@ -27,7 +27,7 @@
 
         // BUSCAR POR ID
         public Usuario buscarPorId(Long id) {
-            return usuarioRepository.findById(Math.toIntExact(id))
+            return usuarioRepository.findById(id)
                     .orElseThrow(() ->
                             new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado")
                     );

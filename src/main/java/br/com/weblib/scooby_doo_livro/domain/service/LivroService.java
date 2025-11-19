@@ -1,15 +1,11 @@
 package br.com.weblib.scooby_doo_livro.domain.service;
 
-import br.com.weblib.scooby_doo_livro.Repository.AvaliacaoRepository;
 import br.com.weblib.scooby_doo_livro.Repository.LivroRepository;
 import br.com.weblib.scooby_doo_livro.domain.model.Livro;
-import br.com.weblib.scooby_doo_livro.domain.model.Usuario;
 import br.com.weblib.scooby_doo_livro.domain.model.enums.EnumCategoria;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
-import javax.security.sasl.AuthenticationException;
 import java.util.List;
 
 @Service
@@ -42,6 +38,8 @@ public class LivroService {
         return livroRepository.findByCategoriasContaining(categoria);
     }
 
+
+    //ENZO
     public Livro cadastrar(Livro livro) {
         validarLivro(livro);
 
