@@ -23,44 +23,4 @@ public class Usuario implements Identifiable {
     private String email;
     private String hashSenha;
     private boolean isAdmin;
-
-    public boolean isAdmin() {
-        return isAdmin;
-    }
-
-    public void setAdmin(boolean admin) {
-        isAdmin = admin;
-    }
-
-    public String getHashSenha() {
-        return hashSenha;
-    }
-
-    public void setHashSenha(String hashSenha) {
-        this.hashSenha = hashSenha;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getNome() {
-        return nome;
-    }
-
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 }

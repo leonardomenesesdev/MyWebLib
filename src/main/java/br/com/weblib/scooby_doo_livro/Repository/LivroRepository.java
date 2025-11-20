@@ -17,4 +17,5 @@ public interface LivroRepository extends JpaRepository<Livro, Long> {
     List<Livro> findByAutorContainingIgnoreCase(String autor);
     @Query("SELECT l FROM Livro l WHERE :categoria MEMBER OF l.categorias")
     List<Livro> findByCategoria(@Param("categoria") EnumCategoria categoria);
+    List<Livro> findByAutorContainingIgnoreCaseOrTituloContainingIgnoreCase(String termo, String termo2);
 }

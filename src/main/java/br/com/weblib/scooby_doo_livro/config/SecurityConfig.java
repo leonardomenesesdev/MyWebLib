@@ -21,11 +21,6 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    /**
-     * Configuração de segurança
-     * DESABILITA a autenticação automática do Spring Security
-     * (permitindo acesso a todas as rotas sem login)
-     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
