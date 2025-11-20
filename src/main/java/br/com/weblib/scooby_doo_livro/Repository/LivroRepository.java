@@ -2,6 +2,8 @@ package br.com.weblib.scooby_doo_livro.Repository;
 
 import br.com.weblib.scooby_doo_livro.domain.model.Livro;
 import br.com.weblib.scooby_doo_livro.domain.model.enums.EnumCategoria;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,5 +19,8 @@ public interface LivroRepository extends JpaRepository<Livro, Long> {
     List<Livro> findByAutorContainingIgnoreCase(String autor);
     @Query("SELECT l FROM Livro l WHERE :categoria MEMBER OF l.categorias")
     List<Livro> findByCategoria(@Param("categoria") EnumCategoria categoria);
+    @Query(value = "SELECT l FROM Livro l LEFT JOIN FETCH l.categorias",
+            countQuery = "SELECT count(l) FROM Livro l")
+    Page<Livro> findAllLivrosComCategorias(Pageable pageable);
     List<Livro> findByAutorContainingIgnoreCaseOrTituloContainingIgnoreCase(String termo, String termo2);
 }
