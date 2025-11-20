@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
@@ -24,11 +25,22 @@ public class Usuario implements UserDetails {
     private String nome;
     private String email;
     private String hashSenha;
-    private boolean isAdmin;
+    private UserRole role;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        // spring meio que trabalha com as permissões "acumulativas"
+        // a role de admin só tem permissões exclusivas para admin, mas
+        // um admin também tem as permissões de um usuário normal.
+        // então um usuário admin, no spring, vai precisar ter tanto a
+        // role admin quanto a role user para ter suas permissões corretas.
+
+        if (this.role == UserRole.ADMIN) {
+
+            return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"), new SimpleGrantedAuthority("ROLE_USER"));
+        } else {
+            return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        }
     }
 
     @Override
