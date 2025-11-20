@@ -1,15 +1,12 @@
-package br.com.weblib.scooby_doo_livro.domain.model;
+package br.com.weblib.scooby_doo_livro.domain.model.Usuario;
 
-import br.com.weblib.scooby_doo_livro.domain.model.interfaces.Identifiable;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 

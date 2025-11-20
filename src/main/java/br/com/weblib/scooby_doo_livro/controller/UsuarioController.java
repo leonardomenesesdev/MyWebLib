@@ -1,6 +1,6 @@
 package br.com.weblib.scooby_doo_livro.controller;
 
-import br.com.weblib.scooby_doo_livro.domain.model.Usuario;
+import br.com.weblib.scooby_doo_livro.domain.model.Usuario.Usuario;
 import br.com.weblib.scooby_doo_livro.domain.service.UsuarioService;
 import br.com.weblib.scooby_doo_livro.dto.UsuarioRegistroDTO;
 import org.slf4j.Logger;
