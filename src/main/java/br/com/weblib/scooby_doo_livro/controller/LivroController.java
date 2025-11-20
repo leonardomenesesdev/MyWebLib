@@ -3,7 +3,11 @@ package br.com.weblib.scooby_doo_livro.controller;
 import br.com.weblib.scooby_doo_livro.domain.model.Livro;
 import br.com.weblib.scooby_doo_livro.domain.model.enums.EnumCategoria;
 import br.com.weblib.scooby_doo_livro.domain.service.LivroService;
+import br.com.weblib.scooby_doo_livro.dto.LivroDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,10 +22,11 @@ public class LivroController {
     private final LivroService livroService;
 
     @GetMapping
-    public ResponseEntity<List<Livro>> getAll(){
-        return ResponseEntity.ok().body(livroService.listarLivros());
+    public ResponseEntity<Page<LivroDTO>> getAll(
+            @PageableDefault(size = 10, sort = "titulo") Pageable pageable
+    ){
+        return ResponseEntity.ok(livroService.listarLivros(pageable));
     }
-
     @GetMapping("/{id}")
     public ResponseEntity<Livro> getById(@PathVariable Long id){
         return ResponseEntity.ok(livroService.getLivroById(id));
