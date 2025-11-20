@@ -27,6 +27,13 @@ public class Usuario implements UserDetails {
     private String hashSenha;
     private UserRole role;
 
+    public Usuario(String nome, String email, String hashSenha, UserRole role) {
+        this.nome = nome;
+        this.email = email;
+        this.hashSenha = hashSenha;
+        this.role = role;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         // spring meio que trabalha com as permissões "acumulativas"
@@ -45,7 +52,7 @@ public class Usuario implements UserDetails {
 
     @Override
     public String getPassword() {
-        return "";
+        return this.hashSenha;
     }
 
     @Override
