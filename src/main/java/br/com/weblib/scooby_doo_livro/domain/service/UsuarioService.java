@@ -43,8 +43,8 @@
                 );
             }
 
-            boolean isAdmin = verificarEmailAdmin(usuario.getEmail());
-            usuario.setAdmin(isAdmin);
+//            boolean isAdmin = verificarEmailAdmin(usuario.getEmail());
+//            usuario.setAdmin(isAdmin);
             String senhaPlana = usuario.getHashSenha(); // Na verdade está em texto plano aqui
             String senhaCriptografada = criptografarSenha(senhaPlana);
             usuario.setHashSenha(senhaCriptografada);
@@ -75,8 +75,8 @@
                             "E-mail já cadastrado por outro usuário"
                     );
                 }
-                boolean novoAdmin = verificarEmailAdmin(usuarioAtualizado.getEmail());
-                usuario.setAdmin(novoAdmin);
+//                boolean novoAdmin = verificarEmailAdmin(usuarioAtualizado.getEmail());
+//                usuario.setAdmin(novoAdmin);
                 usuario.setEmail(usuarioAtualizado.getEmail());
             }
 
@@ -110,11 +110,11 @@
             return hash;
         }
 
-        private boolean verificarEmailAdmin(String email) {
-            if(email == null || email.isEmpty()){
-                return false;
-            }
-            boolean isAdmin = email.toLowerCase().endsWith("@unifor.br");
-            return isAdmin;
-        }
+//        private boolean verificarEmailAdmin(String email) {
+//            if(email == null || email.isEmpty()){
+//                return false;
+//            }
+//            boolean isAdmin = email.toLowerCase().endsWith("@unifor.br");
+//            return isAdmin;
+//        }
     }
