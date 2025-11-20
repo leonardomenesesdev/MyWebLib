@@ -1,10 +1,7 @@
 package br.com.weblib.scooby_doo_livro.controller;
 
 import br.com.weblib.scooby_doo_livro.Repository.UsuarioRepository;
-import br.com.weblib.scooby_doo_livro.domain.model.Usuario.AuthenticationDTO;
-import br.com.weblib.scooby_doo_livro.domain.model.Usuario.LoginResponseDTO;
-import br.com.weblib.scooby_doo_livro.domain.model.Usuario.RegisterDTO;
-import br.com.weblib.scooby_doo_livro.domain.model.Usuario.Usuario;
+import br.com.weblib.scooby_doo_livro.domain.model.Usuario.*;
 import br.com.weblib.scooby_doo_livro.domain.service.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -52,10 +49,16 @@ public class AuthorizationController {
             return ResponseEntity.badRequest().build();
         }
 
+        UserRole userRole = UserRole.USER;
+
+        if (data.email().contains("@unifor.br")) {
+            userRole = UserRole.ADMIN;
+        }
+
         String encryptedPassword = passwordEncoder.encode(data.password());
         Usuario usuario = new Usuario(data.nome(), data.email(),
                 encryptedPassword,
-                data.role());
+                userRole);
 
         this.usuarioRepository.save(usuario);
 
