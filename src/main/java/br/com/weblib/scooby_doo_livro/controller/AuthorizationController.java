@@ -2,8 +2,10 @@ package br.com.weblib.scooby_doo_livro.controller;
 
 import br.com.weblib.scooby_doo_livro.Repository.UsuarioRepository;
 import br.com.weblib.scooby_doo_livro.domain.model.Usuario.AuthenticationDTO;
+import br.com.weblib.scooby_doo_livro.domain.model.Usuario.LoginResponseDTO;
 import br.com.weblib.scooby_doo_livro.domain.model.Usuario.RegisterDTO;
 import br.com.weblib.scooby_doo_livro.domain.model.Usuario.Usuario;
+import br.com.weblib.scooby_doo_livro.domain.service.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,15 +29,20 @@ public class AuthorizationController {
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
+    @Autowired
+    private TokenService tokenService;
+
     @PostMapping("/login")
     public ResponseEntity login(@RequestBody @Validated AuthenticationDTO data) {
-        UsernamePasswordAuthenticationToken token =
+        UsernamePasswordAuthenticationToken emailPassword =
                 new UsernamePasswordAuthenticationToken(data.email(),
                         data.password());
+        Authentication auth = this.authenticationManager.authenticate(emailPassword);
 
-        Authentication auth = this.authenticationManager.authenticate(token);
+        String token =
+                tokenService.generateToken((Usuario) auth.getPrincipal());
 
-        return ResponseEntity.ok().body("Usuário logado com sucesso!");
+        return ResponseEntity.ok(new LoginResponseDTO(token));
     }
 
     @PostMapping("/register")
