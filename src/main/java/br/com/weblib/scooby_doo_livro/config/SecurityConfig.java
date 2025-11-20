@@ -3,8 +3,10 @@ package br.com.weblib.scooby_doo_livro.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -24,9 +26,17 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // Desabilita CSRF (necessário para APIs REST)
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll() // Permite todas as requisições sem autenticação
+                        .requestMatchers(HttpMethod.POST, "/api/livro").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/livro/").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/livro/").hasRole(
+                                "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/admin" +
+                                "/livros/popular").hasRole(
+                                "ADMIN")
+                        .anyRequest().authenticated()
                 );
 
         return http.build();
