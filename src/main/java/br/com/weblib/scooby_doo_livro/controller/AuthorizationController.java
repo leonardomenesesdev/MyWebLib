@@ -36,10 +36,9 @@ public class AuthorizationController {
                         data.password());
         Authentication auth = this.authenticationManager.authenticate(emailPassword);
 
-        String token =
-                tokenService.generateToken((Usuario) auth.getPrincipal());
-
-        return ResponseEntity.ok(new LoginResponseDTO(token));
+        String token = tokenService.generateToken((Usuario) auth.getPrincipal());
+        Usuario usuarioAutenticado = (Usuario) auth.getPrincipal();
+        return ResponseEntity.ok(new LoginResponseDTO(token, usuarioAutenticado.getId()));
     }
 
     @PostMapping("/register")

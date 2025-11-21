@@ -1,11 +1,15 @@
     package br.com.weblib.scooby_doo_livro.domain.service;
 
     import br.com.weblib.scooby_doo_livro.Repository.UsuarioRepository;
+    import br.com.weblib.scooby_doo_livro.domain.model.Usuario.UserDetailsDTO;
+    import br.com.weblib.scooby_doo_livro.domain.model.Usuario.UserRole;
     import br.com.weblib.scooby_doo_livro.domain.model.Usuario.Usuario;
     import org.springframework.http.HttpStatus;
+    import org.springframework.security.core.context.SecurityContextHolder;
     import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
     import org.springframework.stereotype.Service;
     import org.springframework.web.server.ResponseStatusException;
+    import org.springframework.security.core.Authentication;
 
     import java.util.List;
 
@@ -21,100 +25,85 @@
         }
 
         // LISTAR TODOS
-        public List<Usuario> listarTodos() {
-            return usuarioRepository.findAll();
+        public List<UserDetailsDTO> listarTodos() {
+            return usuarioRepository.findAll()
+                    .stream()
+                    .map(UserDetailsDTO::new) // Chama o construtor do DTO para cada usuário
+                    .toList();
         }
 
         // BUSCAR POR ID
-        public Usuario buscarPorId(Long id) {
-            return usuarioRepository.findById(id)
-                    .orElseThrow(() ->
-                            new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado")
-                    );
+        public UserDetailsDTO buscarPorId(Long id) {
+            return usuarioRepository.findUserDetailsById(id);
         }
 
 
-        // CRIAR
-        public Usuario criar(Usuario usuario) {
-            if (usuarioRepository.existsByEmail(usuario.getEmail())) {
-                throw new ResponseStatusException(
-                        HttpStatus.BAD_REQUEST,
-                        "E-mail já cadastrado"
-                );
-            }
-
-//            boolean isAdmin = verificarEmailAdmin(usuario.getEmail());
-//            usuario.setAdmin(isAdmin);
-            String senhaPlana = usuario.getHashSenha(); // Na verdade está em texto plano aqui
-            String senhaCriptografada = criptografarSenha(senhaPlana);
-            usuario.setHashSenha(senhaCriptografada);
-
-            Usuario usuarioSalvo = usuarioRepository.save(usuario);
-            return usuarioSalvo;
-        }
-
-
-
-        // ATUALIZAR
         public Usuario atualizar(Long id, Usuario usuarioAtualizado) {
+            Usuario usuarioAlvo = usuarioRepository.findById(id)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
 
-            Usuario usuario = buscarPorId(id);
-
-            // Atualizar campos
-            if (usuarioAtualizado.getNome() != null) {
-                usuario.setNome(usuarioAtualizado.getNome());
+            Usuario usuarioLogado = getUsuarioAutenticado();
+            //verifica se o usuário que está tentando editar é o mesmo usuário alvo
+            if (!usuarioLogado.getId().equals(usuarioAlvo.getId())) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Você não tem permissão para alterar este perfil.");
             }
 
-            // Verificar se email já existe (se foi alterado)
+            if (usuarioAtualizado.getNome() != null) {
+                usuarioAlvo.setNome(usuarioAtualizado.getNome());
+            }
+
+            // Atualiza Email (com verificação de unicidade)
             if (usuarioAtualizado.getEmail() != null &&
-                    !usuarioAtualizado.getEmail().equals(usuario.getEmail())) {
+                    !usuarioAtualizado.getEmail().equals(usuarioAlvo.getEmail())) {
 
                 if (usuarioRepository.existsByEmail(usuarioAtualizado.getEmail())) {
-                    throw new ResponseStatusException(
-                            HttpStatus.BAD_REQUEST,
-                            "E-mail já cadastrado por outro usuário"
-                    );
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "E-mail já em uso.");
                 }
-//                boolean novoAdmin = verificarEmailAdmin(usuarioAtualizado.getEmail());
-//                usuario.setAdmin(novoAdmin);
-                usuario.setEmail(usuarioAtualizado.getEmail());
+                usuarioAlvo.setEmail(usuarioAtualizado.getEmail());
             }
 
-            if (usuarioAtualizado.getHashSenha() != null &&
-                    !usuarioAtualizado.getHashSenha().isEmpty()) {
-
-                // Verificar se a senha enviada já está criptografada (começa com $2a$)
-                if (!usuarioAtualizado.getHashSenha().startsWith("$2a$")) {
-                    String senhaCriptografada = criptografarSenha(usuarioAtualizado.getHashSenha());
-                    usuario.setHashSenha(senhaCriptografada);
-                }
+            // Atualiza Senha
+            if (usuarioAtualizado.getHashSenha() != null && !usuarioAtualizado.getHashSenha().isEmpty()) {
+                // Evita encriptar duas vezes se o front mandar errado, mas idealmente a senha vem limpa
+                String novaSenha = passwordEncoder.encode(usuarioAtualizado.getHashSenha());
+                usuarioAlvo.setHashSenha(novaSenha);
             }
 
-            Usuario usuarioSalvo = usuarioRepository.save(usuario);
-
-            return usuarioSalvo;
+            return usuarioRepository.save(usuarioAlvo);
         }
-        // DELETAR
+
+        // DELETAR (Próprio usuário OU Admin)
         public void deletar(Long id) {
-            Usuario usuario = buscarPorId(id); // garante que existe
-            usuarioRepository.delete(usuario);
-        }
+            Usuario usuarioAlvo = usuarioRepository.findById(id)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
 
-        // FUNÇÕES AUXILIARES
-        private String criptografarSenha(String senhaPlana) {
-            if (senhaPlana == null || senhaPlana.isEmpty()) {
-                throw new IllegalArgumentException("Senha não pode ser vazia");
+            Usuario usuarioLogado = getUsuarioAutenticado();
+
+            // Verificações booleanas para clareza
+            boolean isDonoDaConta = usuarioLogado.getId().equals(usuarioAlvo.getId());
+            boolean isAdmin = usuarioLogado.getRole() == UserRole.ADMIN;
+
+            // 4. REGRA DE SEGURANÇA: Se não for dono E não for admin, bloqueia.
+            if (!isDonoDaConta && !isAdmin) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Você não tem permissão para excluir este usuário.");
             }
 
-            String hash = passwordEncoder.encode(senhaPlana);
-            return hash;
+            usuarioRepository.delete(usuarioAlvo);
         }
 
-//        private boolean verificarEmailAdmin(String email) {
-//            if(email == null || email.isEmpty()){
-//                return false;
-//            }
-//            boolean isAdmin = email.toLowerCase().endsWith("@unifor.br");
-//            return isAdmin;
-//        }
+        // METODO AUXILIAR PRIVADO (Pega o usuário do contexto de segurança)
+        private Usuario getUsuarioAutenticado() {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null || !authentication.isAuthenticated()) {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário não autenticado");
+            }
+            // Como seu Model implementa UserDetails, o Principal É o Usuario.
+            // O Cast (Usuario) funciona se seu Filter de autenticação estiver configurado corretamente.
+            try {
+                return (Usuario) authentication.getPrincipal();
+            } catch (ClassCastException e) {
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Erro ao identificar usuário logado");
+            }
+        }
+
     }
