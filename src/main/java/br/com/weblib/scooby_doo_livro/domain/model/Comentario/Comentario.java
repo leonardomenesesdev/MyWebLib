@@ -26,5 +26,8 @@ public class Comentario implements Identifiable {
     private Livro livro;
     private String conteudo;
     private Date data;
-
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_comentario_pai")
+    @JsonIgnoreProperties({"pai", "livro", "usuario"}) // Evita loop infinito e dados pesados
+    private Comentario pai;
 }

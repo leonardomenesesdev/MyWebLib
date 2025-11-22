@@ -20,7 +20,7 @@ public class ComentarioController {
 
     @PostMapping
     public ResponseEntity<ComentarioResponseDTO> criar(@RequestBody ComentarioRequestDTO dto) {
-        return ResponseEntity.ok(comentarioService.comentar(dto));
+        return ResponseEntity.ok(comentarioService.adicionar(dto));
     }
 
     // Ex: GET /api/comentario/livro/40?page=0&size=10&sort=data,desc

@@ -24,22 +24,44 @@ public class ComentarioService {
     private final ComentarioRepository comentarioRepository;
     private final LivroRepository livroRepository;
 
-    public ComentarioResponseDTO comentar(ComentarioRequestDTO dto){
-        Usuario usuario = getUsuarioAutenticado();
+    // No ComentarioService.java
 
-        Livro livro = livroRepository.findById(dto.idLivro()).orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND)
-        );
+    public ComentarioResponseDTO adicionar(ComentarioRequestDTO dto) {
+        Usuario usuarioLogado = getUsuarioAutenticado();
+
+        Livro livro = livroRepository.findById(dto.idLivro())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Livro não encontrado"));
 
         Comentario comentario = new Comentario();
-        comentario.setUsuario(usuario);
+        comentario.setUsuario(usuarioLogado);
         comentario.setLivro(livro);
         comentario.setConteudo(dto.conteudo());
         comentario.setData(new Date());
 
+        // LÓGICA DE RESPOSTA (THREAD)
+        if (dto.idComentarioPai() != null) {
+            Comentario pai = comentarioRepository.findById(dto.idComentarioPai())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comentário pai não encontrado"));
+
+            // VALIDAÇÃO DE INTEGRIDADE: O pai é do mesmo livro?
+            if (!pai.getLivro().getId().equals(livro.getId())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "O comentário respondido pertence a outro livro.");
+            }
+
+            // VALIDAÇÃO OPCIONAL: Impedir aninhamento infinito (apenas 1 nível de resposta)
+            // if (pai.getPai() != null) {
+            //      comentario.setPai(pai.getPai()); // Achata a árvore (estilo Facebook/Instagram)
+            // } else {
+            //      comentario.setPai(pai);
+            // }
+
+            comentario.setPai(pai);
+        }
+
         Comentario salvo = comentarioRepository.save(comentario);
         return new ComentarioResponseDTO(salvo);
     }
+
 
     public Page<ComentarioResponseDTO> listarPorLivro(Long idLivro, Pageable pageable) {
         if (!livroRepository.existsById(idLivro)) {
