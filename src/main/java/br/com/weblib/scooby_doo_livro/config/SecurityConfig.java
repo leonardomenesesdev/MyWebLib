@@ -64,23 +64,4 @@ public class SecurityConfig {
 
         return http.build();
     }
-    @Bean
-    CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-
-        // Libera a origem do seu Frontend
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
-
-        // Libera métodos
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-
-        // Libera headers essenciais (Authorization é o Token)
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-
-        configuration.setAllowCredentials(true);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
 }

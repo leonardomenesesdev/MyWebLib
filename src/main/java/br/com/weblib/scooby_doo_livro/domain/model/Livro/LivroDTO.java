@@ -1,6 +1,5 @@
-package br.com.weblib.scooby_doo_livro.dto;
+package br.com.weblib.scooby_doo_livro.domain.model.Livro;
 
-import br.com.weblib.scooby_doo_livro.domain.model.Livro;
 import br.com.weblib.scooby_doo_livro.domain.model.enums.EnumCategoria;
 
 import java.util.List;

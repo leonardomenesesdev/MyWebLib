@@ -1,9 +1,13 @@
     package br.com.weblib.scooby_doo_livro.domain.service;
 
+    import br.com.weblib.scooby_doo_livro.Repository.StatusLeituraRepository;
     import br.com.weblib.scooby_doo_livro.Repository.UsuarioRepository;
+    import br.com.weblib.scooby_doo_livro.domain.model.StatusLeitura.EstatisticasDTO;
     import br.com.weblib.scooby_doo_livro.domain.model.Usuario.UserDetailsDTO;
+    import br.com.weblib.scooby_doo_livro.domain.model.Usuario.UserProfileResponseDTO;
     import br.com.weblib.scooby_doo_livro.domain.model.Usuario.UserRole;
     import br.com.weblib.scooby_doo_livro.domain.model.Usuario.Usuario;
+    import br.com.weblib.scooby_doo_livro.domain.model.enums.EnumStatusLeitura;
     import org.springframework.http.HttpStatus;
     import org.springframework.security.core.context.SecurityContextHolder;
     import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -18,10 +22,12 @@
 
         private final UsuarioRepository usuarioRepository;
         private final BCryptPasswordEncoder passwordEncoder;
+        private final StatusLeituraRepository statusLeituraRepository;
 
-        public UsuarioService(UsuarioRepository usuarioRepository, BCryptPasswordEncoder passwordEncoder) {
+        public UsuarioService(UsuarioRepository usuarioRepository, BCryptPasswordEncoder passwordEncoder,  StatusLeituraRepository statusLeituraRepository) {
             this.usuarioRepository = usuarioRepository;
             this.passwordEncoder = passwordEncoder;
+            this.statusLeituraRepository = statusLeituraRepository;
         }
 
         // LISTAR TODOS
@@ -105,5 +111,24 @@
                 throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Erro ao identificar usuário logado");
             }
         }
+        public UserProfileResponseDTO buscarPerfilCompleto(Long id) {
+            // 1. Busca Usuário (Entidade Pura)
+            Usuario usuario = usuarioRepository.findById(id)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
 
+            // 2. Busca Contagens (Cálculo separado)
+            long lendo = statusLeituraRepository.countByIdUsuarioAndStatusLeitura(id, EnumStatusLeitura.LENDO);
+            long lido = statusLeituraRepository.countByIdUsuarioAndStatusLeitura(id, EnumStatusLeitura.LIDO);
+            long queroLer = statusLeituraRepository.countByIdUsuarioAndStatusLeitura(id, EnumStatusLeitura.QUERO_LER);
+
+            // TODO: Implementar lógica real para estes dois futuramente
+            long favoritos = 0;
+            long avaliacoes = 0;
+
+            // 3. Monta o objeto de estatísticas
+            EstatisticasDTO stats = new EstatisticasDTO(queroLer, lendo, lido, favoritos, avaliacoes);
+
+            // 4. Retorna o DTO Composto (Usuário + Stats)
+            return new UserProfileResponseDTO(usuario, stats);
+        }
     }

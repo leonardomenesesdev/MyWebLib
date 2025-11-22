@@ -4,7 +4,7 @@
 //import br.com.weblib.scooby_doo_livro.Repository.LivroRepository;
 //import br.com.weblib.scooby_doo_livro.Repository.UsuarioRepository;
 //import br.com.weblib.scooby_doo_livro.domain.model.Avaliacao;
-//import br.com.weblib.scooby_doo_livro.domain.model.Livro;
+//import br.com.weblib.scooby_doo_livro.domain.model.Livro.Livro;
 //import br.com.weblib.scooby_doo_livro.domain.model.Usuario.Usuario;
 //import org.springframework.stereotype.Service;
 //

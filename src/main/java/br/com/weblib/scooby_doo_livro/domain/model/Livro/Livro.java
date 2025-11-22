@@ -1,4 +1,4 @@
-package br.com.weblib.scooby_doo_livro.domain.model;
+package br.com.weblib.scooby_doo_livro.domain.model.Livro;
 
 import br.com.weblib.scooby_doo_livro.domain.model.enums.EnumCategoria;
 import br.com.weblib.scooby_doo_livro.domain.model.interfaces.Identifiable;
@@ -38,4 +38,6 @@ public class Livro implements Identifiable {
     @CollectionTable(name = "livro_categorias", joinColumns = @JoinColumn(name = "livro_id"))
     @Column(name = "categoria")
     private List<EnumCategoria> categorias;
+    @Column(name = "avaliacao_media")
+    private Double avaliacaoMedia = 0.0;
 }
