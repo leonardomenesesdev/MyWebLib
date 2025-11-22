@@ -18,4 +18,5 @@ public interface StatusLeituraRepository extends JpaRepository<StatusLeitura,Lon
             "(SELECT s.idLivro FROM StatusLeitura s WHERE s.idUsuario = :idUsuario AND s.statusLeitura = :status)")
     List<Livro> findLivrosPorStatusDoUsuario(@Param("idUsuario") Long idUsuario,
                                              @Param("status") EnumStatusLeitura status);
+    long countByIdUsuarioAndStatusLeitura(Long idUsuario, EnumStatusLeitura statusLeitura);
 }

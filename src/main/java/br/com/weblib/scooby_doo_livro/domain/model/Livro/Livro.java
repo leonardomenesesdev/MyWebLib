@@ -38,4 +38,6 @@ public class Livro implements Identifiable {
     @CollectionTable(name = "livro_categorias", joinColumns = @JoinColumn(name = "livro_id"))
     @Column(name = "categoria")
     private List<EnumCategoria> categorias;
+    @Column(name = "avaliacao_media")
+    private Double avaliacaoMedia = 0.0;
 }
