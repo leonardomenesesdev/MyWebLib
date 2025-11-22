@@ -8,7 +8,8 @@ public record ComentarioResponseDTO(
         String nomeUsuario,
         Long idUsuario,
         Long idLivro,
-        Date data
+        Date data,
+        Long idComentarioPai
 ) {
     public ComentarioResponseDTO(Comentario comentario) {
         this(
@@ -17,7 +18,8 @@ public record ComentarioResponseDTO(
                 comentario.getUsuario().getNome(),
                 comentario.getUsuario().getId(),
                 comentario.getLivro().getId(),
-                comentario.getData()
+                comentario.getData(),
+                comentario.getPai() != null ? comentario.getPai().getId() : null // se tiver pai, manda o ID
         );
     }
 }
