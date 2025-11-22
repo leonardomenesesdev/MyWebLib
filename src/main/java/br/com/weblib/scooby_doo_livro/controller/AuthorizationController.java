@@ -15,6 +15,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("auth")
+@CrossOrigin("*")
 public class AuthorizationController {
 
     @Autowired

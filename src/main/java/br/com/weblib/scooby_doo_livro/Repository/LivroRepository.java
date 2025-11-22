@@ -1,6 +1,6 @@
 package br.com.weblib.scooby_doo_livro.Repository;
 
-import br.com.weblib.scooby_doo_livro.domain.model.Livro;
+import br.com.weblib.scooby_doo_livro.domain.model.Livro.Livro;
 import br.com.weblib.scooby_doo_livro.domain.model.enums.EnumCategoria;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
