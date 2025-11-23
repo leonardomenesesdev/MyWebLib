@@ -71,31 +71,6 @@ public class AvaliacaoService {
                     "encontrada");        }
     }
 
-    public Avaliacao buscarAvaliacaoUsuario(Long idLivro, Long idUsuario) {
-        Livro livro = livroRepository.findById(idLivro)
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Livro não encontrado"));
-
-        Usuario usuario = usuarioRepository.findById(idUsuario)
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário não encontrado"));
-
-        Optional<Avaliacao> avaliacaoUsuario =
-                avaliacaoRepository.findByLivroAndUsuario(livro, usuario);
-
-        if (avaliacaoUsuario.isEmpty()) {
-            throw new RecursoNaoEncontradoException("Avaliação não " +
-                    "encontrada");
-        }
-
-        return avaliacaoUsuario.get();
-    }
-
-    public List<Avaliacao> listarAvaliacoesPorLivro(Long livroId) {
-        Livro livro = livroRepository.findById(livroId)
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Livro não encontrado"));
-
-        return avaliacaoRepository.findByLivro(livro);
-    }
-
 
     private void atualizarMediaDoLivro(Livro livro) {
         // Passo 1: O Banco calcula a média (retorna apenas um Double)
