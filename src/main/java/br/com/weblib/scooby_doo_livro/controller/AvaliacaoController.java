@@ -27,4 +27,11 @@ public class AvaliacaoController {
         return ResponseEntity.ok(new AvaliacaoResponseDTO(avaliacao.getId(),
                 livroId, avaliacao.getUsuario().getEmail(), avaliacao.getNota()));
     }
+
+    @DeleteMapping("/avaliar/cancelar/{livroId}/{usuarioId}")
+    public ResponseEntity cancelarAvaliacao(@PathVariable Long livroId,
+                                            @PathVariable Long usuarioId) {
+        avaliacaoService.removerAvaliacao(livroId, usuarioId);
+        return ResponseEntity.ok("Avaliação removida com sucesso.");
+    }
 }

@@ -68,7 +68,8 @@ public class AvaliacaoService {
             atualizarMediaDoLivro(livro);
         } else {
             throw new RecursoNaoEncontradoException("Avaliação não " +
-                    "encontrada");        }
+                    "encontrada");
+        }
     }
 
 
