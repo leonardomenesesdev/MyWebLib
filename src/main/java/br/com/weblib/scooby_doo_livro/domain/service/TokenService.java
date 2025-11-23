@@ -1,6 +1,7 @@
 package br.com.weblib.scooby_doo_livro.domain.service;
 
 import br.com.weblib.scooby_doo_livro.domain.model.Usuario.Usuario;
+import br.com.weblib.scooby_doo_livro.domain.model.exceptions.JWTTokenException;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
@@ -31,7 +32,7 @@ public class TokenService {
 
             return token;
         } catch (JWTCreationException exception) {
-            throw new RuntimeException("Erro ao gerar token", exception);
+            throw new JWTTokenException("Erro ao gerar o token JWT.");
         }
     }
 

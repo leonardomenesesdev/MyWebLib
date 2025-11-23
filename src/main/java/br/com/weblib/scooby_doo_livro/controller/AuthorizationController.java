@@ -61,7 +61,6 @@ public class AuthorizationController {
                 userRole);
 
         this.usuarioRepository.save(usuario);
-
         return ResponseEntity.ok().body("Usuário registrado com sucesso!");
     }
 }

@@ -1,6 +1,7 @@
 package br.com.weblib.scooby_doo_livro.controller.exceptions;
 
 import br.com.weblib.scooby_doo_livro.domain.model.ApiErrorResponse;
+import br.com.weblib.scooby_doo_livro.domain.model.exceptions.JWTTokenException;
 import br.com.weblib.scooby_doo_livro.domain.model.exceptions.RecursoNaoEncontradoException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -33,6 +34,21 @@ public class GlobalExceptionHandler {
         br.com.weblib.scooby_doo_livro.domain.model.ApiErrorResponse errorResponse = new br.com.weblib.scooby_doo_livro.domain.model.ApiErrorResponse(
                 HttpStatus.NOT_FOUND.value(),
                 "Entrada inválida",
+                e.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
+
+    @ExceptionHandler(JWTTokenException.class)
+    public ResponseEntity<ApiErrorResponse> handleJWTTokenException(
+            JWTTokenException e,
+            HttpServletRequest request
+    ) {
+        br.com.weblib.scooby_doo_livro.domain.model.ApiErrorResponse errorResponse = new br.com.weblib.scooby_doo_livro.domain.model.ApiErrorResponse(
+                HttpStatus.NOT_FOUND.value(),
+                "Erro de autenticação.",
                 e.getMessage(),
                 request.getRequestURI()
         );

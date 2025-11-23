@@ -1,10 +1,7 @@
 package br.com.weblib.scooby_doo_livro.domain.model.Usuario;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -25,6 +22,7 @@ public class Usuario implements UserDetails {
     private String nome;
     private String email;
     private String hashSenha;
+    @Enumerated(EnumType.STRING)
     private UserRole role;
 
     public Usuario(String nome, String email, String hashSenha, UserRole role) {

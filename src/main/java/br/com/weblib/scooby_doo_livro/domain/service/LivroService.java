@@ -19,7 +19,8 @@ public class LivroService {
 
     public Page<LivroDTO> listarLivros(Pageable pageable) {
         // Busca a página de entidades já com categorias carregadas
-        Page<Livro> livrosPage = livroRepository.findAllLivrosComCategorias(pageable);
+        Page<Livro> livrosPage =
+                livroRepository.findAllLivrosComCategorias(pageable);
 
         // Converte Entidade -> DTO
         return livrosPage.map(LivroDTO::new);
