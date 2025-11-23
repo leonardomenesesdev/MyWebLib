@@ -12,7 +12,5 @@ import java.util.Optional;
 @Repository
 public interface AvaliacaoRepository extends JpaRepository<Avaliacao, Long> {
     Optional<Avaliacao> findByLivroAndUsuario(Livro livro, Usuario usuario);
-
-    Double calcularMediaPorLivro(Long idLivro);
     ArrayList<Avaliacao> findByLivro(Livro livro);
 }
