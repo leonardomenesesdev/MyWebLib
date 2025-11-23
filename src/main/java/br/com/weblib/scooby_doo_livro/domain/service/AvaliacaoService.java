@@ -3,14 +3,13 @@ package br.com.weblib.scooby_doo_livro.domain.service;
 import br.com.weblib.scooby_doo_livro.Repository.AvaliacaoRepository;
 import br.com.weblib.scooby_doo_livro.Repository.LivroRepository;
 import br.com.weblib.scooby_doo_livro.Repository.UsuarioRepository;
-import br.com.weblib.scooby_doo_livro.domain.model.Avaliacao;
+import br.com.weblib.scooby_doo_livro.domain.model.Avaliacao.Avaliacao;
 import br.com.weblib.scooby_doo_livro.domain.model.Livro;
 import br.com.weblib.scooby_doo_livro.domain.model.Usuario.Usuario;
 import br.com.weblib.scooby_doo_livro.domain.model.exceptions.RecursoNaoEncontradoException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,23 +38,17 @@ public class AvaliacaoService {
         Optional<Avaliacao> avaliacaoExistente =
                 avaliacaoRepository.findByLivroAndUsuario(livro, usuario);
 
-        Avaliacao avaliacao;
-        if (avaliacaoExistente.isPresent()) {
-            // Atualiza a avaliação existente
-            avaliacao = avaliacaoExistente.get();
-            avaliacao.setNota(nota);
-        } else {
-            // Cria nova avaliação
-            avaliacao = new Avaliacao();
+        Avaliacao avaliacao = avaliacaoExistente.orElse(new Avaliacao());
+        if (avaliacaoExistente.isEmpty()) {
             avaliacao.setLivro(livro);
             avaliacao.setUsuario(usuario);
-            avaliacao.setNota(nota);
         }
+        avaliacao.setNota(nota);
 
         Avaliacao avaliacaoSalva = avaliacaoRepository.save(avaliacao);
 
         // Recalcula a média geral do livro
-        recalcularMediaLivro(livro);
+        atualizarMediaDoLivro(livro);
 
         return avaliacaoSalva;
     }
@@ -72,7 +65,7 @@ public class AvaliacaoService {
 
         if (avaliacao.isPresent()) {
             avaliacaoRepository.delete(avaliacao.get());
-            recalcularMediaLivro(livro);
+            atualizarMediaDoLivro(livro);
         } else {
             throw new RecursoNaoEncontradoException("Avaliação não " +
                     "encontrada");        }
@@ -104,19 +97,20 @@ public class AvaliacaoService {
     }
 
 
-    public void recalcularMediaLivro(Livro livro) {
-        List<Avaliacao> avaliacoes =
-                this.listarAvaliacoesPorLivro(livro.getId());
+    private void atualizarMediaDoLivro(Livro livro) {
+        // Passo 1: O Banco calcula a média (retorna apenas um Double)
+        Double novaMedia = avaliacaoRepository.obterMediaPorLivro(livro);
 
-        double somaAcumulada = 0.0;
+        // Passo 2: Atualizamos o Livro com a nova média
+        // Opção A: Atualizar o objeto em memória e salvar (padrão JPA)
+        // livro.setAvaliacao_media(novaMedia);
+        // livroRepository.save(livro);
 
-        for (Avaliacao avaliacao : avaliacoes) {
-            somaAcumulada += avaliacao.getNota();
-        }
+        // Opção B (A que você pediu): Query direta de Update no repositório
+        livroRepository.atualizarMediaDoLivro(livro.getId(), novaMedia);
 
-        double media = somaAcumulada / avaliacoes.size();
-
-        livro.setAvaliacao_media(media);
+        // Atualiza o objeto em memória caso ele seja retornado na resposta do controller
+        livro.setAvaliacao_media(novaMedia);
     }
 
     private void validarNota(Integer nota) {

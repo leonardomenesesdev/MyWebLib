@@ -1,7 +1,6 @@
 package br.com.weblib.scooby_doo_livro.controller;
 
-import br.com.weblib.scooby_doo_livro.domain.model.Avaliacao;
-import br.com.weblib.scooby_doo_livro.domain.model.Livro;
+import br.com.weblib.scooby_doo_livro.domain.model.Avaliacao.Avaliacao;
 import br.com.weblib.scooby_doo_livro.domain.service.AvaliacaoService;
 import br.com.weblib.scooby_doo_livro.domain.service.LivroService;
 import org.springframework.beans.factory.annotation.Autowired;

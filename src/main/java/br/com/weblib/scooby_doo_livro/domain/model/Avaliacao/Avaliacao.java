@@ -1,5 +1,6 @@
-package br.com.weblib.scooby_doo_livro.domain.model;
+package br.com.weblib.scooby_doo_livro.domain.model.Avaliacao;
 
+import br.com.weblib.scooby_doo_livro.domain.model.Livro;
 import br.com.weblib.scooby_doo_livro.domain.model.Usuario.Usuario;
 import br.com.weblib.scooby_doo_livro.domain.model.interfaces.Identifiable;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
