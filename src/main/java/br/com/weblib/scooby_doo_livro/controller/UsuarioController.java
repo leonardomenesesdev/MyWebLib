@@ -1,12 +1,11 @@
 package br.com.weblib.scooby_doo_livro.controller;
 
 import br.com.weblib.scooby_doo_livro.domain.model.Usuario.UserDetailsDTO;
+import br.com.weblib.scooby_doo_livro.domain.model.Usuario.UserProfileResponseDTO;
 import br.com.weblib.scooby_doo_livro.domain.model.Usuario.Usuario;
 import br.com.weblib.scooby_doo_livro.domain.service.UsuarioService;
-import br.com.weblib.scooby_doo_livro.dto.UsuarioRegistroDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,6 +43,14 @@ public class UsuarioController {
         Usuario atualizado = usuarioService.atualizar(id, usuario);
 
         return ResponseEntity.ok(atualizado);
+    }
+
+    @GetMapping("/perfil/{id}")
+    public ResponseEntity<UserProfileResponseDTO> buscarPerfilCompleto(@PathVariable Long id) {
+        // Chama o metodo novo do service
+        UserProfileResponseDTO perfil = usuarioService.buscarPerfilCompleto(id);
+
+        return ResponseEntity.ok(perfil);
     }
 
     // DELETE /user/{id} -> Remove usuário

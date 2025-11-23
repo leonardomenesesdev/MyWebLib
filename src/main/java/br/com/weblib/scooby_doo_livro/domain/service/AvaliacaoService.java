@@ -4,7 +4,7 @@ import br.com.weblib.scooby_doo_livro.Repository.AvaliacaoRepository;
 import br.com.weblib.scooby_doo_livro.Repository.LivroRepository;
 import br.com.weblib.scooby_doo_livro.Repository.UsuarioRepository;
 import br.com.weblib.scooby_doo_livro.domain.model.Avaliacao.Avaliacao;
-import br.com.weblib.scooby_doo_livro.domain.model.Livro;
+import br.com.weblib.scooby_doo_livro.domain.model.Livro.Livro;
 import br.com.weblib.scooby_doo_livro.domain.model.Usuario.Usuario;
 import br.com.weblib.scooby_doo_livro.domain.model.exceptions.RecursoNaoEncontradoException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,7 +86,7 @@ public class AvaliacaoService {
         livroRepository.atualizarMediaDoLivro(livro.getId(), novaMedia);
 
         // Atualiza o objeto em memória caso ele seja retornado na resposta do controller
-        livro.setAvaliacao_media(novaMedia);
+        livro.setAvaliacaoMedia(novaMedia);
     }
 
     private void validarNota(Integer nota) {

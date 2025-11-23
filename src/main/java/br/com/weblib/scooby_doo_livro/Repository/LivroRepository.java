@@ -1,6 +1,6 @@
 package br.com.weblib.scooby_doo_livro.Repository;
 
-import br.com.weblib.scooby_doo_livro.domain.model.Livro;
+import br.com.weblib.scooby_doo_livro.domain.model.Livro.Livro;
 import br.com.weblib.scooby_doo_livro.domain.model.enums.EnumCategoria;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,6 +29,6 @@ public interface LivroRepository extends JpaRepository<Livro, Long> {
     // --- NOVO MÉTODO ---
     @Modifying // Indica que é um UPDATE/DELETE
     @Transactional // Necessário para operações de modificação customizadas
-    @Query("UPDATE Livro l SET l.avaliacao_media = :media WHERE l.id = :id")
+    @Query("UPDATE Livro l SET l.avaliacaoMedia = :media WHERE l.id = :id")
     void atualizarMediaDoLivro(@Param("id") Long id, @Param("media") Double media);
 }

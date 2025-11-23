@@ -1,5 +1,6 @@
-package br.com.weblib.scooby_doo_livro.domain.model;
+package br.com.weblib.scooby_doo_livro.domain.model.Comentario;
 
+import br.com.weblib.scooby_doo_livro.domain.model.Livro.Livro;
 import br.com.weblib.scooby_doo_livro.domain.model.Usuario.Usuario;
 import br.com.weblib.scooby_doo_livro.domain.model.interfaces.Identifiable;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -25,5 +26,8 @@ public class Comentario implements Identifiable {
     private Livro livro;
     private String conteudo;
     private Date data;
-
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_comentario_pai")
+    @JsonIgnoreProperties({"pai", "livro", "usuario"}) // Evita loop infinito e dados pesados
+    private Comentario pai;
 }
