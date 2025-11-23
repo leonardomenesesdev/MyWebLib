@@ -33,6 +33,8 @@ public class Livro implements Identifiable {
     @Column(length = 2000) // Sinopses costumam ser longas
     private String sinopse;
 
+    private Double avaliacao_media;
+
     @ElementCollection(targetClass = EnumCategoria.class)
     @Enumerated(EnumType.STRING)
     @CollectionTable(name = "livro_categorias", joinColumns = @JoinColumn(name = "livro_id"))
