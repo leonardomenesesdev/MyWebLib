@@ -28,7 +28,7 @@ public class AvaliacaoService {
         this.avaliacaoRepository = avaliacaoRepository;
     }
 
-    public Avaliacao avaliarLivro(Long livroId, Long usuarioId, Integer nota){
+    public Avaliacao avaliarLivro(Long livroId, Long usuarioId, Integer nota) {
         validarNota(nota);
         Livro livro =
                 livroRepository.findById(livroId).orElseThrow(() -> new RecursoNaoEncontradoException(
@@ -73,38 +73,50 @@ public class AvaliacaoService {
         if (avaliacao.isPresent()) {
             avaliacaoRepository.delete(avaliacao.get());
             recalcularMediaLivro(livro);
-        }
+        } else {
+            throw new RecursoNaoEncontradoException("Avaliação não " +
+                    "encontrada");        }
     }
 
-    public Optional<Avaliacao> buscarAvaliacaoUsuario(Long idLivro, Long idUsuario) {
+    public Avaliacao buscarAvaliacaoUsuario(Long idLivro, Long idUsuario) {
         Livro livro = livroRepository.findById(idLivro)
-                .orElseThrow(() -> new RuntimeException("Livro não encontrado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Livro não encontrado"));
 
         Usuario usuario = usuarioRepository.findById(idUsuario)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário não encontrado"));
 
-        return avaliacaoRepository.findByLivroAndUsuario(livro, usuario);
+        Optional<Avaliacao> avaliacaoUsuario =
+                avaliacaoRepository.findByLivroAndUsuario(livro, usuario);
+
+        if (avaliacaoUsuario.isEmpty()) {
+            throw new RecursoNaoEncontradoException("Avaliação não " +
+                    "encontrada");
+        }
+
+        return avaliacaoUsuario.get();
     }
 
     public List<Avaliacao> listarAvaliacoesPorLivro(Long livroId) {
         Livro livro = livroRepository.findById(livroId)
-                .orElseThrow(() -> new RuntimeException("Livro não encontrado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Livro não encontrado"));
 
         return avaliacaoRepository.findByLivro(livro);
     }
 
 
-    private void recalcularMediaLivro(Livro livro) {
+    public void recalcularMediaLivro(Livro livro) {
         List<Avaliacao> avaliacoes =
                 this.listarAvaliacoesPorLivro(livro.getId());
 
-        Integer somaAcumulada = 0;
+        double somaAcumulada = 0.0;
 
         for (Avaliacao avaliacao : avaliacoes) {
             somaAcumulada += avaliacao.getNota();
         }
 
         double media = somaAcumulada / avaliacoes.size();
+
+        livro.setAvaliacao_media(media);
     }
 
     private void validarNota(Integer nota) {
