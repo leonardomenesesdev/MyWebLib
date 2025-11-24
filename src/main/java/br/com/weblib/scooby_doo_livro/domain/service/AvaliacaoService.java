@@ -94,4 +94,19 @@ public class AvaliacaoService {
             throw new IllegalArgumentException("Nota deve ser entre 0 e 5");
         }
     }
+
+    public Integer obterNotaDoUsuario(Long idLivro, Long idUsuario) {
+        // Otimização: Não precisamos buscar o objeto Livro/Usuario inteiro se o repo suportar busca por ID,
+        // mas para manter consistência com o código do seu amigo:
+
+        Livro livro = livroRepository.findById(idLivro)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Livro não encontrado"));
+
+        Usuario usuario = usuarioRepository.findById(idUsuario)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário não encontrado"));
+
+        return avaliacaoRepository.findByLivroAndUsuario(livro, usuario)
+                .map(Avaliacao::getNota) // Se existir, pega a nota
+                .orElse(0);              // Se não existir (Optional empty), retorna 0
+    }
 }

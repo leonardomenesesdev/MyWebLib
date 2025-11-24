@@ -2,10 +2,12 @@ package br.com.weblib.scooby_doo_livro.controller;
 
 import br.com.weblib.scooby_doo_livro.domain.model.Avaliacao.Avaliacao;
 import br.com.weblib.scooby_doo_livro.domain.model.Avaliacao.AvaliacaoResponseDTO;
+import br.com.weblib.scooby_doo_livro.domain.model.Usuario.Usuario;
 import br.com.weblib.scooby_doo_livro.domain.service.AvaliacaoService;
 import br.com.weblib.scooby_doo_livro.domain.service.LivroService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -34,5 +36,17 @@ public class AvaliacaoController {
                                             @PathVariable Long usuarioId) {
         avaliacaoService.removerAvaliacao(livroId, usuarioId);
         return ResponseEntity.ok("Avaliação removida com sucesso.");
+    }
+
+    @GetMapping("/me/{livroId}")
+    public ResponseEntity<Integer> obterMinhaAvaliacao(@PathVariable Long livroId,
+                                                       Authentication authentication) {
+        // 1. Recupera o usuário logado de forma segura via Token
+        Usuario usuarioLogado = (Usuario) authentication.getPrincipal();
+
+        // 2. Chama o service passando o ID seguro
+        Integer nota = avaliacaoService.obterNotaDoUsuario(livroId, usuarioLogado.getId());
+
+        return ResponseEntity.ok(nota);
     }
 }
