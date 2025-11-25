@@ -3,6 +3,7 @@ package br.com.weblib.scooby_doo_livro.domain.service;
 import br.com.weblib.scooby_doo_livro.Repository.LivroRepository;
 import br.com.weblib.scooby_doo_livro.domain.model.Livro.Livro;
 import br.com.weblib.scooby_doo_livro.domain.model.Livro.LivroDTO;
+import br.com.weblib.scooby_doo_livro.domain.model.Livro.LivroRequestDTO;
 import br.com.weblib.scooby_doo_livro.domain.model.enums.EnumCategoria;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -47,14 +48,23 @@ public class LivroService {
     }
 
 
-    public Livro cadastrar(Livro livro) {
-        validarLivro(livro);
+    public Livro cadastrar(LivroRequestDTO dadosLivro) {
+        validarLivro(dadosLivro);
 
-        if (livroRepository.existsByTituloAndAutor(livro.getTitulo(), livro.getAutor())) {
-            throw new IllegalArgumentException("Livro já cadastrado: " + livro.getTitulo());
+        if (livroRepository.existsByTituloAndAutor(dadosLivro.titulo(),
+                dadosLivro.autor())) {
+            throw new IllegalArgumentException("Livro já cadastrado: " + dadosLivro.titulo());
         }
 
-        return livroRepository.save(livro);
+        Livro novoLivro = new Livro();
+
+        novoLivro.setTitulo(dadosLivro.titulo());
+        novoLivro.setAutor(dadosLivro.autor());
+        novoLivro.setCapa(dadosLivro.capa());
+        novoLivro.setAno(dadosLivro.ano());
+        novoLivro.setCategorias(dadosLivro.categorias());
+
+        return livroRepository.save(novoLivro);
     }
 
     private void validarLivro(Livro livro) throws IllegalArgumentException{
@@ -71,6 +81,24 @@ public class LivroService {
         int anoAtual = java.time.Year.now().getValue();
 
         if (livro.getAno() != null && (livro.getAno() < 0 || livro.getAno() > anoAtual)) {
+            throw new IllegalArgumentException("Ano de publicação inválido");
+        }
+    }
+
+    private void validarLivro(LivroRequestDTO livro) throws IllegalArgumentException{
+        if (livro.titulo() == null || livro.titulo().trim().isEmpty()) {
+            throw new IllegalArgumentException("Título é obrigatório");
+        }
+        if (livro.autor() == null || livro.autor().trim().isEmpty()) {
+            throw new IllegalArgumentException("Autor é obrigatório");
+        }
+        if (livro.categorias() == null || livro.categorias().isEmpty()) {
+            throw new IllegalArgumentException("Pelo menos uma categoria é obrigatória");
+        }
+
+        int anoAtual = java.time.Year.now().getValue();
+
+        if (livro.ano() != null && (livro.ano() < 0 || livro.ano() > anoAtual)) {
             throw new IllegalArgumentException("Ano de publicação inválido");
         }
     }

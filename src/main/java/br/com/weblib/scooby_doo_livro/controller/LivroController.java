@@ -2,6 +2,7 @@ package br.com.weblib.scooby_doo_livro.controller;
 
 import br.com.weblib.scooby_doo_livro.domain.model.Livro.Livro;
 import br.com.weblib.scooby_doo_livro.domain.model.Livro.LivroDTO;
+import br.com.weblib.scooby_doo_livro.domain.model.Livro.LivroRequestDTO;
 import br.com.weblib.scooby_doo_livro.domain.model.enums.EnumCategoria;
 import br.com.weblib.scooby_doo_livro.domain.service.LivroService;
 import lombok.RequiredArgsConstructor;
@@ -52,8 +53,9 @@ public class LivroController {
         return ResponseEntity.ok(livros);
     }
 
+    // CRUD
     @PostMapping()
-    public ResponseEntity<Livro> create(@RequestBody Livro livro) {
+    public ResponseEntity<Livro> create(@RequestBody LivroRequestDTO livro) {
         Livro novoLivro = livroService.cadastrar(livro);
         return ResponseEntity.ok(novoLivro);
     }
