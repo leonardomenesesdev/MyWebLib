@@ -5,6 +5,7 @@ import br.com.weblib.scooby_doo_livro.domain.model.Livro.Livro;
 import br.com.weblib.scooby_doo_livro.domain.model.Livro.LivroDTO;
 import br.com.weblib.scooby_doo_livro.domain.model.Livro.LivroRequestDTO;
 import br.com.weblib.scooby_doo_livro.domain.model.enums.EnumCategoria;
+import br.com.weblib.scooby_doo_livro.domain.model.exceptions.RecursoNaoEncontradoException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -138,11 +139,11 @@ public class LivroService {
         return livroRepository.save(livroExistente);
     }
 
+    @Transactional
     public void delete(Long id) {
-        if (!livroRepository.existsById(id)) {
-            throw new IllegalArgumentException("Não existe livro com ID: " + id);
-        }
-        livroRepository.deleteById(id);
+        Livro livro = getLivroById(id);
+
+        livroRepository.delete(livro);
     }
 }
 
