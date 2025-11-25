@@ -9,5 +9,6 @@ public record LivroRequestDTO(
         String autor,
         String capa,
         Integer ano,
-        List<EnumCategoria> categorias
+        List<EnumCategoria> categorias,
+        String sinopse
 ) {}

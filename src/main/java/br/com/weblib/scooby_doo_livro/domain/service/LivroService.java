@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -63,6 +64,7 @@ public class LivroService {
         novoLivro.setCapa(dadosLivro.capa());
         novoLivro.setAno(dadosLivro.ano());
         novoLivro.setCategorias(dadosLivro.categorias());
+        novoLivro.setSinopse(dadosLivro.sinopse());
 
         return livroRepository.save(novoLivro);
     }
@@ -103,18 +105,35 @@ public class LivroService {
         }
     }
 
-    public Livro atualizar(Long id, Livro livroAtualizado) {
+    @Transactional
+    public Livro atualizar(Long id, LivroRequestDTO dadosAtualizados) {
+        validarLivro(dadosAtualizados);
+
         Livro livroExistente = getLivroById(id);
 
-        validarLivro(livroAtualizado);
+        if (dadosAtualizados.titulo() != null) {
+            livroExistente.setTitulo(dadosAtualizados.titulo());
+        }
 
-        // Atualiza somente os campos permitidos
-        livroExistente.setTitulo(livroAtualizado.getTitulo());
-        livroExistente.setAutor(livroAtualizado.getAutor());
-        livroExistente.setCapa(livroAtualizado.getCapa());
-        livroExistente.setAno(livroAtualizado.getAno());
-        livroExistente.setCategorias(livroAtualizado.getCategorias());
-        livroExistente.setSinopse(livroAtualizado.getSinopse());
+        if (dadosAtualizados.autor() != null) {
+            livroExistente.setAutor(dadosAtualizados.autor());
+        }
+
+        if (dadosAtualizados.capa() != null) {
+            livroExistente.setCapa(dadosAtualizados.capa());
+        }
+
+        if (dadosAtualizados.ano() != null) {
+            livroExistente.setAno(dadosAtualizados.ano());
+        }
+
+        if (dadosAtualizados.categorias() != null && !dadosAtualizados.categorias().isEmpty()) {
+            livroExistente.setCategorias(dadosAtualizados.categorias());
+        }
+
+        if (dadosAtualizados.sinopse() != null) {
+            livroExistente.setSinopse(dadosAtualizados.sinopse());
+        }
 
         return livroRepository.save(livroExistente);
     }
