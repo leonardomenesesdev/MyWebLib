@@ -52,7 +52,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/livro").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/livro/").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/livro/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/livro/").hasRole(
                                 "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/admin" +

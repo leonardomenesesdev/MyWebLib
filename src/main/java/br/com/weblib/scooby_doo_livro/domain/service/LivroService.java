@@ -3,12 +3,14 @@ package br.com.weblib.scooby_doo_livro.domain.service;
 import br.com.weblib.scooby_doo_livro.Repository.LivroRepository;
 import br.com.weblib.scooby_doo_livro.domain.model.Livro.Livro;
 import br.com.weblib.scooby_doo_livro.domain.model.Livro.LivroDTO;
+import br.com.weblib.scooby_doo_livro.domain.model.Livro.LivroRequestDTO;
 import br.com.weblib.scooby_doo_livro.domain.model.enums.EnumCategoria;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -49,14 +51,24 @@ public class LivroService {
     }
 
 
-    public Livro cadastrar(Livro livro) {
-        validarLivro(livro);
+    public Livro cadastrar(LivroRequestDTO dadosLivro) {
+        validarLivro(dadosLivro);
 
-        if (livroRepository.existsByTituloAndAutor(livro.getTitulo(), livro.getAutor())) {
-            throw new IllegalArgumentException("Livro já cadastrado: " + livro.getTitulo());
+        if (livroRepository.existsByTituloAndAutor(dadosLivro.titulo(),
+                dadosLivro.autor())) {
+            throw new IllegalArgumentException("Livro já cadastrado: " + dadosLivro.titulo());
         }
 
-        return livroRepository.save(livro);
+        Livro novoLivro = new Livro();
+
+        novoLivro.setTitulo(dadosLivro.titulo());
+        novoLivro.setAutor(dadosLivro.autor());
+        novoLivro.setCapa(dadosLivro.capa());
+        novoLivro.setAno(dadosLivro.ano());
+        novoLivro.setCategorias(dadosLivro.categorias());
+        novoLivro.setSinopse(dadosLivro.sinopse());
+
+        return livroRepository.save(novoLivro);
     }
 
     private void validarLivro(Livro livro) throws IllegalArgumentException{
@@ -77,27 +89,62 @@ public class LivroService {
         }
     }
 
-    public Livro atualizar(Long id, Livro livroAtualizado) {
+    private void validarLivro(LivroRequestDTO livro) throws IllegalArgumentException{
+        if (livro.titulo() == null || livro.titulo().trim().isEmpty()) {
+            throw new IllegalArgumentException("Título é obrigatório");
+        }
+        if (livro.autor() == null || livro.autor().trim().isEmpty()) {
+            throw new IllegalArgumentException("Autor é obrigatório");
+        }
+        if (livro.categorias() == null || livro.categorias().isEmpty()) {
+            throw new IllegalArgumentException("Pelo menos uma categoria é obrigatória");
+        }
+
+        int anoAtual = java.time.Year.now().getValue();
+
+        if (livro.ano() != null && (livro.ano() < 0 || livro.ano() > anoAtual)) {
+            throw new IllegalArgumentException("Ano de publicação inválido");
+        }
+    }
+
+    @Transactional
+    public Livro atualizar(Long id, LivroRequestDTO dadosAtualizados) {
+        validarLivro(dadosAtualizados);
+
         Livro livroExistente = getLivroById(id);
 
-        validarLivro(livroAtualizado);
+        if (dadosAtualizados.titulo() != null) {
+            livroExistente.setTitulo(dadosAtualizados.titulo());
+        }
 
-        // Atualiza somente os campos permitidos
-        livroExistente.setTitulo(livroAtualizado.getTitulo());
-        livroExistente.setAutor(livroAtualizado.getAutor());
-        livroExistente.setCapa(livroAtualizado.getCapa());
-        livroExistente.setAno(livroAtualizado.getAno());
-        livroExistente.setCategorias(livroAtualizado.getCategorias());
-        livroExistente.setSinopse(livroAtualizado.getSinopse());
+        if (dadosAtualizados.autor() != null) {
+            livroExistente.setAutor(dadosAtualizados.autor());
+        }
+
+        if (dadosAtualizados.capa() != null) {
+            livroExistente.setCapa(dadosAtualizados.capa());
+        }
+
+        if (dadosAtualizados.ano() != null) {
+            livroExistente.setAno(dadosAtualizados.ano());
+        }
+
+        if (dadosAtualizados.categorias() != null && !dadosAtualizados.categorias().isEmpty()) {
+            livroExistente.setCategorias(dadosAtualizados.categorias());
+        }
+
+        if (dadosAtualizados.sinopse() != null) {
+            livroExistente.setSinopse(dadosAtualizados.sinopse());
+        }
 
         return livroRepository.save(livroExistente);
     }
 
+    @Transactional
     public void delete(Long id) {
-        if (!livroRepository.existsById(id)) {
-            throw new IllegalArgumentException("Não existe livro com ID: " + id);
-        }
-        livroRepository.deleteById(id);
+        Livro livro = getLivroById(id);
+
+        livroRepository.delete(livro);
     }
 
     public Livro buscarEntidadePorId(Long id) {

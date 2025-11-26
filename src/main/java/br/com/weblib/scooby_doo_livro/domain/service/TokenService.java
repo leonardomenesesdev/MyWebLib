@@ -27,6 +27,7 @@ public class TokenService {
                     .create()
                     .withIssuer("skooby-doo-livro")
                     .withSubject(usuario.getEmail())
+                    .withClaim("role", usuario.getRole().name())
                     .withExpiresAt(generateExpirationDate())
                     .sign(algorithm);
 

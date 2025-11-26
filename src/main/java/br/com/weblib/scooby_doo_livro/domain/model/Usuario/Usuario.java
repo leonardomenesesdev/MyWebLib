@@ -1,9 +1,15 @@
 package br.com.weblib.scooby_doo_livro.domain.model.Usuario;
 
+import br.com.weblib.scooby_doo_livro.domain.model.Avaliacao.Avaliacao;
+import br.com.weblib.scooby_doo_livro.domain.model.Comentario.Comentario;
+import br.com.weblib.scooby_doo_livro.domain.model.LivroFavoritado.LivroFavoritado;
+import br.com.weblib.scooby_doo_livro.domain.model.StatusLeitura.StatusLeitura;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,6 +30,32 @@ public class Usuario implements UserDetails {
     private String hashSenha;
     @Enumerated(EnumType.STRING)
     private UserRole role;
+
+    // 1. Avaliações feitas pelo usuário
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    // Evita que ao buscar usuário venha o histórico inteiro de avaliações
+    @ToString.Exclude
+    private List<Avaliacao> avaliacoes;
+
+    // 2. Comentários feitos pelo usuário
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    @ToString.Exclude
+    private List<Comentario> comentarios;
+
+    // 3. Status de Leitura (Lendo, Lido, Quero Ler)
+//     Se você tiver uma entidade StatusLeitura que liga Usuario e Livro
+     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+     @JsonIgnore
+     @ToString.Exclude
+     private List<StatusLeitura> statusLeitura;
+
+    // 4. Livros Favoritados
+     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+     @JsonIgnore
+     @ToString.Exclude
+     private List<LivroFavoritado> favoritos;
 
     public Usuario(String nome, String email, String hashSenha, UserRole role) {
         this.nome = nome;

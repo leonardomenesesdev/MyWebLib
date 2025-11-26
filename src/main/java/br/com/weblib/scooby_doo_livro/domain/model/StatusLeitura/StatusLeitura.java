@@ -1,7 +1,10 @@
 package br.com.weblib.scooby_doo_livro.domain.model.StatusLeitura;
 
+import br.com.weblib.scooby_doo_livro.domain.model.Livro.Livro;
+import br.com.weblib.scooby_doo_livro.domain.model.Usuario.Usuario;
 import br.com.weblib.scooby_doo_livro.domain.model.enums.EnumStatusLeitura;
 import br.com.weblib.scooby_doo_livro.domain.model.interfaces.Identifiable;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,29 +12,38 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @Entity
-//um usuario so pode ter um status de leitura pra um livro
+// Ajustamos os nomes das colunas na constraint para bater com o @JoinColumn abaixo
 @Table(name = "status_leitura", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"idUsuario", "idLivro"})
+        @UniqueConstraint(columnNames = {"id_usuario", "id_livro"})
 })
-public class StatusLeitura implements Identifiable{
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+public class StatusLeitura implements Identifiable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
-    private Long idLivro;
+    // --- MUDANÇA 1: De Long para Entidade Livro ---
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_livro", nullable = false)
+    @JsonIgnoreProperties({"avaliacoes", "comentarios", "categorias", "sinopse"}) // Evita trazer o livro inteiro pesado
+    private Livro livro;
 
-    @Column
-    private Long idUsuario;
+    // --- MUDANÇA 2: De Long para Entidade Usuario ---
+    // É este campo que o mappedBy="usuario" lá na classe Usuario está procurando!
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_usuario", nullable = false)
+    @JsonIgnoreProperties({"avaliacoes", "comentarios", "role", "hashSenha"}) // Evita loop infinito
+    private Usuario usuario;
 
     @Enumerated(EnumType.STRING)
-    @Column
+    @Column(nullable = false)
     private EnumStatusLeitura statusLeitura;
 
-    // Construtor utilitário para facilitar criação
-    public StatusLeitura(Long idUsuario, Long idLivro, EnumStatusLeitura statusLeitura) {
-        this.idUsuario = idUsuario;
-        this.idLivro = idLivro;
+    // Construtor ajustado para receber Entidades
+    public StatusLeitura(Usuario usuario, Livro livro, EnumStatusLeitura statusLeitura) {
+        this.usuario = usuario;
+        this.livro = livro;
         this.statusLeitura = statusLeitura;
     }
 }

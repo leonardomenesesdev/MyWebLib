@@ -2,6 +2,7 @@ package br.com.weblib.scooby_doo_livro.controller;
 
 import br.com.weblib.scooby_doo_livro.domain.model.Livro.Livro;
 import br.com.weblib.scooby_doo_livro.domain.model.Livro.LivroDTO;
+import br.com.weblib.scooby_doo_livro.domain.model.Livro.LivroRequestDTO;
 import br.com.weblib.scooby_doo_livro.domain.model.enums.EnumCategoria;
 import br.com.weblib.scooby_doo_livro.domain.service.LivroService;
 import lombok.RequiredArgsConstructor;
@@ -52,14 +53,16 @@ public class LivroController {
         return ResponseEntity.ok(livros);
     }
 
+    // CRUD
     @PostMapping()
-    public ResponseEntity<Livro> create(@RequestBody Livro livro) {
+    public ResponseEntity<Livro> create(@RequestBody LivroRequestDTO livro) {
         Livro novoLivro = livroService.cadastrar(livro);
         return ResponseEntity.ok(novoLivro);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Livro> update(@PathVariable Long id, @RequestBody Livro livroAtualizado) throws AuthenticationException {
+    public ResponseEntity<Livro> update(@PathVariable Long id,
+                                        @RequestBody LivroRequestDTO livroAtualizado) throws AuthenticationException {
         Livro livro = livroService.atualizar(id, livroAtualizado);
         return ResponseEntity.ok(livro);
     }

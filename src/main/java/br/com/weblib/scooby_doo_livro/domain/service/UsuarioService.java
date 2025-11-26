@@ -1,5 +1,6 @@
     package br.com.weblib.scooby_doo_livro.domain.service;
 
+    import br.com.weblib.scooby_doo_livro.Repository.AvaliacaoRepository;
     import br.com.weblib.scooby_doo_livro.Repository.LivroFavoritadoRepository;
     import br.com.weblib.scooby_doo_livro.Repository.StatusLeituraRepository;
     import br.com.weblib.scooby_doo_livro.Repository.UsuarioRepository;
@@ -14,6 +15,7 @@
     import org.springframework.security.core.context.SecurityContextHolder;
     import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
     import org.springframework.stereotype.Service;
+    import org.springframework.transaction.annotation.Transactional;
     import org.springframework.web.server.ResponseStatusException;
     import org.springframework.security.core.Authentication;
 
@@ -26,11 +28,18 @@
         private final BCryptPasswordEncoder passwordEncoder;
         private final StatusLeituraRepository statusLeituraRepository;
         private final LivroFavoritadoRepository livroFavoritadoRepository;
-        public UsuarioService(UsuarioRepository usuarioRepository, BCryptPasswordEncoder passwordEncoder,  StatusLeituraRepository statusLeituraRepository, LivroFavoritadoRepository livroFavoritadoRepository) {
+        private final AvaliacaoRepository avaliacaoRepository;
+
+        public UsuarioService(UsuarioRepository usuarioRepository,
+                              BCryptPasswordEncoder passwordEncoder,
+                              StatusLeituraRepository statusLeituraRepository,
+                              LivroFavoritadoRepository livroFavoritadoRepository,
+                              AvaliacaoRepository avaliacaoRepository) {
             this.usuarioRepository = usuarioRepository;
             this.passwordEncoder = passwordEncoder;
             this.statusLeituraRepository = statusLeituraRepository;
             this.livroFavoritadoRepository = livroFavoritadoRepository;
+            this.avaliacaoRepository = avaliacaoRepository;
         }
 
         // LISTAR TODOS
@@ -114,24 +123,27 @@
                 throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Erro ao identificar usuário logado");
             }
         }
+        @Transactional(readOnly = true) // Boa prática para métodos de leitura
         public UserProfileResponseDTO buscarPerfilCompleto(Long id) {
-            // 1. Busca Usuário (Entidade Pura)
+            // 1. Busca Usuário
             Usuario usuario = usuarioRepository.findById(id)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
 
-            // 2. Busca Contagens (Cálculo separado)
-            long lendo = statusLeituraRepository.countByIdUsuarioAndStatusLeitura(id, EnumStatusLeitura.LENDO);
-            long lido = statusLeituraRepository.countByIdUsuarioAndStatusLeitura(id, EnumStatusLeitura.LIDO);
-            long queroLer = statusLeituraRepository.countByIdUsuarioAndStatusLeitura(id, EnumStatusLeitura.QUERO_LER);
+            // 2. Busca Contagens (CORREÇÃO AQUI)
+            // Mudamos de countByIdUsuario... para countByUsuarioId...
+            long lendo = statusLeituraRepository.countByUsuarioIdAndStatusLeitura(id, EnumStatusLeitura.LENDO);
+            long lido = statusLeituraRepository.countByUsuarioIdAndStatusLeitura(id, EnumStatusLeitura.LIDO);
+            long queroLer = statusLeituraRepository.countByUsuarioIdAndStatusLeitura(id, EnumStatusLeitura.QUERO_LER);
 
-            // TODO: Implementar lógica real para estes dois futuramente
             long favoritos = livroFavoritadoRepository.countByUsuarioId(id);
-            long avaliacoes = 0;
 
-            // 3. Monta o objeto de estatísticas
+            // 3. Implementação Real das Avaliações (Bônus)
+            // Supondo que você crie um método countByUsuarioId no AvaliacaoRepository
+            long avaliacoes = avaliacaoRepository.countByUsuarioId(id);
+
+            // 4. Monta o DTO
             EstatisticasDTO stats = new EstatisticasDTO(queroLer, lendo, lido, favoritos, avaliacoes);
 
-            // 4. Retorna o DTO Composto (Usuário + Stats)
             return new UserProfileResponseDTO(usuario, stats);
         }
 
