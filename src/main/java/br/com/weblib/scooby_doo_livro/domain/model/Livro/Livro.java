@@ -40,4 +40,5 @@ public class Livro implements Identifiable {
     private List<EnumCategoria> categorias;
     @Column(name = "avaliacao_media")
     private Double avaliacaoMedia = 0.0;
+
 }

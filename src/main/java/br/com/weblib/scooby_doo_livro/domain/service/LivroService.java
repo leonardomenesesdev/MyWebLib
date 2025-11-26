@@ -7,7 +7,9 @@ import br.com.weblib.scooby_doo_livro.domain.model.enums.EnumCategoria;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -97,5 +99,11 @@ public class LivroService {
         }
         livroRepository.deleteById(id);
     }
+
+    public Livro buscarEntidadePorId(Long id) {
+        return livroRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Livro não encontrado"));
+    }
+
 }
 

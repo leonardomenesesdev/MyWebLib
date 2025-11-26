@@ -1,5 +1,6 @@
     package br.com.weblib.scooby_doo_livro.domain.service;
 
+    import br.com.weblib.scooby_doo_livro.Repository.LivroFavoritadoRepository;
     import br.com.weblib.scooby_doo_livro.Repository.StatusLeituraRepository;
     import br.com.weblib.scooby_doo_livro.Repository.UsuarioRepository;
     import br.com.weblib.scooby_doo_livro.domain.model.StatusLeitura.EstatisticasDTO;
@@ -8,6 +9,7 @@
     import br.com.weblib.scooby_doo_livro.domain.model.Usuario.UserRole;
     import br.com.weblib.scooby_doo_livro.domain.model.Usuario.Usuario;
     import br.com.weblib.scooby_doo_livro.domain.model.enums.EnumStatusLeitura;
+    import br.com.weblib.scooby_doo_livro.domain.model.exceptions.RecursoNaoEncontradoException;
     import org.springframework.http.HttpStatus;
     import org.springframework.security.core.context.SecurityContextHolder;
     import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -23,11 +25,12 @@
         private final UsuarioRepository usuarioRepository;
         private final BCryptPasswordEncoder passwordEncoder;
         private final StatusLeituraRepository statusLeituraRepository;
-
-        public UsuarioService(UsuarioRepository usuarioRepository, BCryptPasswordEncoder passwordEncoder,  StatusLeituraRepository statusLeituraRepository) {
+        private final LivroFavoritadoRepository livroFavoritadoRepository;
+        public UsuarioService(UsuarioRepository usuarioRepository, BCryptPasswordEncoder passwordEncoder,  StatusLeituraRepository statusLeituraRepository, LivroFavoritadoRepository livroFavoritadoRepository) {
             this.usuarioRepository = usuarioRepository;
             this.passwordEncoder = passwordEncoder;
             this.statusLeituraRepository = statusLeituraRepository;
+            this.livroFavoritadoRepository = livroFavoritadoRepository;
         }
 
         // LISTAR TODOS
@@ -122,7 +125,7 @@
             long queroLer = statusLeituraRepository.countByIdUsuarioAndStatusLeitura(id, EnumStatusLeitura.QUERO_LER);
 
             // TODO: Implementar lógica real para estes dois futuramente
-            long favoritos = 0;
+            long favoritos = livroFavoritadoRepository.countByUsuarioId(id);
             long avaliacoes = 0;
 
             // 3. Monta o objeto de estatísticas
@@ -130,5 +133,10 @@
 
             // 4. Retorna o DTO Composto (Usuário + Stats)
             return new UserProfileResponseDTO(usuario, stats);
+        }
+
+        public Usuario buscarEntidadePorId(Long id) {
+            return usuarioRepository.findById(id)
+                    .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário não encontrado"));
         }
     }

@@ -8,7 +8,9 @@ import br.com.weblib.scooby_doo_livro.domain.model.StatusLeitura.AtualizarStatus
 import br.com.weblib.scooby_doo_livro.domain.model.StatusLeitura.StatusLeitura;
 import br.com.weblib.scooby_doo_livro.domain.model.enums.EnumStatusLeitura;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -40,5 +42,15 @@ public class StatusLeituraService {
         return statusLeituraRepository.findByIdUsuarioAndIdLivro(idUsuario, idLivro).map(
                 s->s.getStatusLeitura().name())
                 .orElse(null);
+    }
+    public void validarPermissaoParaFavoritar(Long idUsuario, Long idLivro) {
+        StatusLeitura status = statusLeituraRepository.findByIdUsuarioAndIdLivro(idUsuario, idLivro)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "É necessário definir o status LENDO ou LIDO antes de favoritar."));
+
+        if (status.getStatusLeitura() == EnumStatusLeitura.QUERO_LER) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Não é permitido favoritar livros da lista 'Quero Ler'.");
+        }
     }
 }
