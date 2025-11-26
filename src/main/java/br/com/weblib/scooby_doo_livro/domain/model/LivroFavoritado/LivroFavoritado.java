@@ -1,4 +1,4 @@
-package br.com.weblib.scooby_doo_livro.domain.model;
+package br.com.weblib.scooby_doo_livro.domain.model.LivroFavoritado;
 
 import br.com.weblib.scooby_doo_livro.domain.model.Livro.Livro;
 import br.com.weblib.scooby_doo_livro.domain.model.Usuario.Usuario;
@@ -35,4 +35,6 @@ public class LivroFavoritado implements Identifiable {
     private Usuario usuario;
 
     private LocalDateTime dataAdicao;
+
+
 }
