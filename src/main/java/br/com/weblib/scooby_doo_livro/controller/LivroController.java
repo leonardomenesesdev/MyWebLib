@@ -61,7 +61,8 @@ public class LivroController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Livro> update(@PathVariable Long id, @RequestBody Livro livroAtualizado) throws AuthenticationException {
+    public ResponseEntity<Livro> update(@PathVariable Long id,
+                                        @RequestBody LivroRequestDTO livroAtualizado) throws AuthenticationException {
         Livro livro = livroService.atualizar(id, livroAtualizado);
         return ResponseEntity.ok(livro);
     }
