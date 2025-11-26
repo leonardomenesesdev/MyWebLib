@@ -17,4 +17,5 @@ public interface AvaliacaoRepository extends JpaRepository<Avaliacao, Long> {
     ArrayList<Avaliacao> findByLivro(Livro livro);
     @Query("SELECT COALESCE(AVG(a.nota), 0.0) FROM Avaliacao a WHERE a.livro = :livro")
     Double obterMediaPorLivro(@Param("livro") Livro livro);
+    long countByUsuarioId(Long usuarioId);
 }

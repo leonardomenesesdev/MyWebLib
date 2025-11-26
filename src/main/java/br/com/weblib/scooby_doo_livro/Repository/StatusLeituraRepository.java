@@ -12,11 +12,16 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface StatusLeituraRepository extends JpaRepository<StatusLeitura,Long> {
-    Optional<StatusLeitura> findByIdUsuarioAndIdLivro(Long idUsuario, Long idLivro);
-    @Query("SELECT l FROM Livro l WHERE l.id IN " +
-            "(SELECT s.idLivro FROM StatusLeitura s WHERE s.idUsuario = :idUsuario AND s.statusLeitura = :status)")
+public interface StatusLeituraRepository extends JpaRepository<StatusLeitura, Long> {
+
+    // Spring Data navega: StatusLeitura -> Usuario -> Id
+    Optional<StatusLeitura> findByUsuarioIdAndLivroId(Long usuarioId, Long livroId);
+
+    // Query otimizada: Navega direto pelo objeto 's.livro'
+    @Query("SELECT s.livro FROM StatusLeitura s WHERE s.usuario.id = :idUsuario AND s.statusLeitura = :status")
     List<Livro> findLivrosPorStatusDoUsuario(@Param("idUsuario") Long idUsuario,
                                              @Param("status") EnumStatusLeitura status);
-    long countByIdUsuarioAndStatusLeitura(Long idUsuario, EnumStatusLeitura statusLeitura);
+
+    // Contagem usando a navegação pelo ID do objeto Usuario
+    long countByUsuarioIdAndStatusLeitura(Long usuarioId, EnumStatusLeitura statusLeitura);
 }
