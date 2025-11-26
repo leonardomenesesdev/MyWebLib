@@ -26,18 +26,18 @@ public class Livro implements Identifiable {
     @EqualsAndHashCode.Include
     private Long id;
 
-    @Column(length = 500)
+    @Column(length = 500)  // Aumenta limite para títulos longos
     private String titulo;
 
-    @Column(length = 500)
+    @Column(length = 500)  // Aumenta limite para múltiplos autores
     private String autor;
 
-    @Column(length = 1000)
+    @Column(length = 1000) // URLs de imagem podem ser longas
     private String capa;
 
     private Integer ano;
 
-    @Column(length = 2000)
+    @Column(length = 2000) // Sinopses costumam ser longas
     private String sinopse;
 
     @ElementCollection(targetClass = EnumCategoria.class)
