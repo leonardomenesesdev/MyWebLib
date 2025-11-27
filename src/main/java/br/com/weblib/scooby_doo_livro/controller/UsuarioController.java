@@ -54,8 +54,11 @@ public class UsuarioController {
     }
 
     @GetMapping("/nome/{nome}")
-    public ResponseEntity<UserDetailsDTO> buscarPorNome(@PathVariable String nome) {
+    public ResponseEntity<List<UserDetailsDTO>> buscarPorNome(@PathVariable String nome) {
+        List<UserDetailsDTO> usuariosFiltradosPorNome =
+                usuarioService.buscarUsuarioPorNome(nome);
 
+        return ResponseEntity.ok(usuariosFiltradosPorNome);
     }
 
     // DELETE /user/{id} -> Remove usuário
