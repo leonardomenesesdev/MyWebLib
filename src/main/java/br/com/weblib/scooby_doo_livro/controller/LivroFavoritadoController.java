@@ -29,19 +29,9 @@ public class LivroFavoritadoController {
     public ResponseEntity<?> toggleFavorito(@PathVariable Long idLivro, Authentication authentication) {
         Usuario usuario = (Usuario) authentication.getPrincipal();
 
-        try {
             favoritoService.alternarFavorito(usuario.getId(), idLivro);
             // Sucesso: Retorna 200 OK sem corpo
             return ResponseEntity.ok().build();
-
-        } catch (ResponseStatusException e) {
-            // ERRO DE REGRA DE NEGÓCIO:
-            // Capturamos a exceção do Service (ex: "Livros na lista 'Quero Ler' não podem...")
-            // E forçamos o retorno de um JSON com a chave "message".
-            return ResponseEntity
-                    .status(e.getStatusCode())
-                    .body(Map.of("message", e.getReason()));
-        }
     }
 
     @GetMapping("/usuario/{idUsuario}")
