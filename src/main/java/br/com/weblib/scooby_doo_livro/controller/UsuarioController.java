@@ -53,6 +53,11 @@ public class UsuarioController {
         return ResponseEntity.ok(perfil);
     }
 
+    @GetMapping("/nome/{nome}")
+    public ResponseEntity<UserDetailsDTO> buscarPorNome(@PathVariable String nome) {
+
+    }
+
     // DELETE /user/{id} -> Remove usuário
     // A lógica de segurança (dono ou admin) está dentro do Service.
     @DeleteMapping("/{id}")

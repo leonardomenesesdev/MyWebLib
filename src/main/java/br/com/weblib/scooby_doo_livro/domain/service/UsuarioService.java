@@ -153,8 +153,8 @@
                     .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário não encontrado"));
         }
 
-        public List<Usuario> buscarUsuarioPorNome(String nome) {
-            List<Usuario> usuariosFiltrados =
+        public List<UserDetailsDTO> buscarUsuarioPorNome(String nome) {
+            List<UserDetailsDTO> usuariosFiltrados =
                     usuarioRepository.findByNomeContainingIgnoreCase(nome);
 
             if (usuariosFiltrados.isEmpty()) {

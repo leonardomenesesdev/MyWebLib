@@ -13,7 +13,7 @@ import java.util.Optional;
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     UserDetailsDTO findUserDetailsById(long id);
-    List<Usuario> findByNomeContainingIgnoreCase(String nome);
+    List<UserDetailsDTO> findByNomeContainingIgnoreCase(String nome);
     boolean existsByEmail(String email);
     UserDetails findByEmail(String email);
 }
