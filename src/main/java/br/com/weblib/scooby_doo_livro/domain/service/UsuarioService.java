@@ -19,6 +19,7 @@
     import org.springframework.web.server.ResponseStatusException;
     import org.springframework.security.core.Authentication;
 
+    import java.util.ArrayList;
     import java.util.List;
 
     @Service
@@ -150,5 +151,17 @@
         public Usuario buscarEntidadePorId(Long id) {
             return usuarioRepository.findById(id)
                     .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário não encontrado"));
+        }
+
+        public List<UserDetailsDTO> buscarUsuarioPorNome(String nome) {
+            List<UserDetailsDTO> usuariosFiltrados =
+                    usuarioRepository.findByNomeContainingIgnoreCase(nome);
+
+            if (usuariosFiltrados.isEmpty()) {
+                throw new RecursoNaoEncontradoException("Nenhum usuário " +
+                        "foi encontrado com o nome: '" + nome + "'");
+            }
+
+            return usuariosFiltrados;
         }
     }
