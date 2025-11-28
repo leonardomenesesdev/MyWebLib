@@ -44,4 +44,15 @@ public class LivroStatusController {
 
         return ResponseEntity.ok(livros);
     }
+
+    //controller pra pegar os livros de outro usuário
+    @GetMapping("/usuario/{userId}/{status}")
+    public ResponseEntity<List<LivroDTO>> listarLivrosDeOutroUsuario(
+            @PathVariable Long userId,
+            @PathVariable EnumStatusLeitura status
+    ) {
+        List<LivroDTO> livros = statusLeituraService.listarLivrosPorStatus(userId, status);
+
+        return ResponseEntity.ok(livros);
+    }
 }
