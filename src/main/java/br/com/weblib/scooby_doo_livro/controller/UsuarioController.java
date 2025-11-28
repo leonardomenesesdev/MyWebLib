@@ -36,11 +36,11 @@ public class UsuarioController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Usuario> atualizar(@PathVariable Long id,
-                                             @RequestBody Usuario usuario) {
+    public ResponseEntity<UserDetailsDTO> atualizar(@PathVariable Long id,
+                                             @RequestBody UserDetailsDTO usuario) {
         logger.info("Recebida requisição para atualizar usuário ID: {}", id);
 
-        Usuario atualizado = usuarioService.atualizar(id, usuario);
+        UserDetailsDTO atualizado = usuarioService.atualizar(id, usuario);
 
         return ResponseEntity.ok(atualizado);
     }
