@@ -57,40 +57,43 @@
         }
 
 
-        public Usuario atualizar(Long id, Usuario usuarioAtualizado) {
+        public UserDetailsDTO atualizar(Long id, UserDetailsDTO dados) {
+
+            // 1. Busca a entidade (Persistência)
             Usuario usuarioAlvo = usuarioRepository.findById(id)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
 
+            // 2. Segurança: Garante que só o dono altera o perfil
             Usuario usuarioLogado = getUsuarioAutenticado();
-            //verifica se o usuário que está tentando editar é o mesmo usuário alvo
             if (!usuarioLogado.getId().equals(usuarioAlvo.getId())) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Você não tem permissão para alterar este perfil.");
             }
 
-            if (usuarioAtualizado.getNome() != null) {
-                usuarioAlvo.setNome(usuarioAtualizado.getNome());
+            // 3. Atualização condicional (Patch)
+
+            // Atualiza Nome
+            if (dados.nome() != null && !dados.nome().isBlank()) {
+                usuarioAlvo.setNome(dados.nome());
             }
 
-            // Atualiza Email (com verificação de unicidade)
-            if (usuarioAtualizado.getEmail() != null &&
-                    !usuarioAtualizado.getEmail().equals(usuarioAlvo.getEmail())) {
+            // Atualiza Email (com verificação de conflito)
+            if (dados.email() != null && !dados.email().isBlank()
+                    && !dados.email().equals(usuarioAlvo.getEmail())) {
 
-                if (usuarioRepository.existsByEmail(usuarioAtualizado.getEmail())) {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "E-mail já em uso.");
+                if (usuarioRepository.existsByEmail(dados.email())) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "E-mail já está em uso.");
                 }
-                usuarioAlvo.setEmail(usuarioAtualizado.getEmail());
+                usuarioAlvo.setEmail(dados.email());
             }
 
-            // Atualiza Senha
-            if (usuarioAtualizado.getHashSenha() != null && !usuarioAtualizado.getHashSenha().isEmpty()) {
-                // Evita encriptar duas vezes se o front mandar errado, mas idealmente a senha vem limpa
-                String novaSenha = passwordEncoder.encode(usuarioAtualizado.getHashSenha());
-                usuarioAlvo.setHashSenha(novaSenha);
-            }
 
-            return usuarioRepository.save(usuarioAlvo);
+            // 4. Salva e Converte para DTO de Saída
+            // O saveAndFlush força a validação do banco imediatamente (útil para erros de constraint)
+            Usuario usuarioSalvo = usuarioRepository.saveAndFlush(usuarioAlvo);
+
+            // Retorna o DTO de leitura (que já existe no seu projeto)
+            return new UserDetailsDTO(usuarioSalvo);
         }
-
         // DELETAR (Próprio usuário OU Admin)
         public void deletar(Long id) {
             Usuario usuarioAlvo = usuarioRepository.findById(id)
