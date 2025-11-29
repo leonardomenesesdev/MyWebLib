@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -35,6 +36,12 @@ public class LivroService {
                 .orElseThrow(() -> new IllegalArgumentException("Livro não encontrado com ID: " + id));
     }
 
+    public LivroDTO getLivroDTOById(Long id) {
+        Livro livro = livroRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Livro não encontrado com ID: " + id));
+        return new LivroDTO(livro);
+    }
+
     public List<Livro> buscarPorTitulo(String titulo) {
         return livroRepository.findByTituloContainingIgnoreCase(titulo);
     }
@@ -43,15 +50,21 @@ public class LivroService {
         return livroRepository.findByAutorContainingIgnoreCase(autor);
     }
 
-    public List<Livro> getByAutorOrTitulo(String termo){
-        return livroRepository.findByAutorContainingIgnoreCaseOrTituloContainingIgnoreCase(termo, termo);
+    public List<LivroDTO> getByAutorOrTitulo(String termo){
+        List<Livro> livros = livroRepository.findByAutorContainingIgnoreCaseOrTituloContainingIgnoreCase(termo, termo);
+        List<LivroDTO> dtos = new ArrayList<>();
+        livros.forEach(livro -> {
+            LivroDTO livroDTO = new LivroDTO(livro);
+            dtos.add(livroDTO);
+        });
+        return dtos;
     }
     public List<Livro> buscarPorCategoria(EnumCategoria categoria) {
         return livroRepository.findByCategoriasContaining(categoria);
     }
 
 
-    public Livro cadastrar(LivroRequestDTO dadosLivro) {
+    public LivroRequestDTO cadastrar(LivroRequestDTO dadosLivro) {
         validarLivro(dadosLivro);
 
         if (livroRepository.existsByTituloAndAutor(dadosLivro.titulo(),
@@ -68,7 +81,8 @@ public class LivroService {
         novoLivro.setCategorias(dadosLivro.categorias());
         novoLivro.setSinopse(dadosLivro.sinopse());
 
-        return livroRepository.save(novoLivro);
+        livroRepository.save(novoLivro);
+        return dadosLivro;
     }
 
     private void validarLivro(Livro livro) throws IllegalArgumentException{
@@ -108,7 +122,7 @@ public class LivroService {
     }
 
     @Transactional
-    public Livro atualizar(Long id, LivroRequestDTO dadosAtualizados) {
+    public LivroRequestDTO atualizar(Long id, LivroRequestDTO dadosAtualizados) {
         validarLivro(dadosAtualizados);
 
         Livro livroExistente = getLivroById(id);
@@ -137,7 +151,17 @@ public class LivroService {
             livroExistente.setSinopse(dadosAtualizados.sinopse());
         }
 
-        return livroRepository.save(livroExistente);
+        livroRepository.save(livroExistente);
+        return dadosAtualizados;
+    }
+
+    @Transactional
+    public void atualizarMedia(Long idLivro, Double novaMedia) {
+        // Opção 1: Via JPA puro (Mais seguro para cache)
+        Livro livro = buscarEntidadePorId(idLivro);
+        livro.setAvaliacaoMedia(novaMedia);
+        livroRepository.save(livro);
+
     }
 
     @Transactional
@@ -150,6 +174,9 @@ public class LivroService {
     public Livro buscarEntidadePorId(Long id) {
         return livroRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Livro não encontrado"));
+    }
+    public boolean existePorId(Long id) {
+        return livroRepository.existsById(id);
     }
 
 }

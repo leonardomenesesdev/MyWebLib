@@ -28,12 +28,12 @@ public class LivroController {
         return ResponseEntity.ok(livroService.listarLivros(pageable));
     }
     @GetMapping("/{id}")
-    public ResponseEntity<Livro> getById(@PathVariable Long id){
-        return ResponseEntity.ok(livroService.getLivroById(id));
+    public ResponseEntity<LivroDTO> getById(@PathVariable Long id){
+        return ResponseEntity.ok(livroService.getLivroDTOById(id));
     }
 
     @GetMapping("/pesquisar/{termo}")
-    public ResponseEntity<List<Livro>> getByAutorOrTitulo(@PathVariable String termo){
+    public ResponseEntity<List<LivroDTO>> getByAutorOrTitulo(@PathVariable String termo){
         return ResponseEntity.ok().body(livroService.getByAutorOrTitulo(termo));
     }
     @GetMapping("/titulo/{titulo}")
@@ -42,6 +42,7 @@ public class LivroController {
     }
 
 
+    //não ta sendo usada pra nada no front. removemos?
     @GetMapping("/buscar/{autor}")
     public ResponseEntity<List<Livro>> buscarPorAutor(@PathVariable String autor){
         return ResponseEntity.ok(livroService.getByAutor(autor));
@@ -55,23 +56,22 @@ public class LivroController {
 
     // CRUD
     @PostMapping()
-    public ResponseEntity<Livro> create(@RequestBody LivroRequestDTO livro) {
-        Livro novoLivro = livroService.cadastrar(livro);
-        return ResponseEntity.ok(novoLivro);
+    public ResponseEntity create(@RequestBody LivroRequestDTO livro) {
+        LivroRequestDTO novoLivro = livroService.cadastrar(livro);
+        return ResponseEntity.ok().body("Livro registrado com sucesso!");
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Livro> update(@PathVariable Long id,
+    public ResponseEntity update(@PathVariable Long id,
                                         @RequestBody LivroRequestDTO livroAtualizado) throws AuthenticationException {
-        Livro livro = livroService.atualizar(id, livroAtualizado);
-        return ResponseEntity.ok(livro);
+        LivroRequestDTO livro = livroService.atualizar(id, livroAtualizado);
+        return ResponseEntity.ok().body("Livro atualizado com sucesso!");
     }
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         livroService.delete(id);
     }
-
 
 
 }

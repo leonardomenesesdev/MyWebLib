@@ -4,6 +4,7 @@ import br.com.weblib.scooby_doo_livro.domain.model.ApiErrorResponse;
 import br.com.weblib.scooby_doo_livro.domain.model.exceptions.JWTTokenException;
 import br.com.weblib.scooby_doo_livro.domain.model.exceptions.LivroInvalidoParaFavoritarException;
 import br.com.weblib.scooby_doo_livro.domain.model.exceptions.RecursoNaoEncontradoException;
+import br.com.weblib.scooby_doo_livro.domain.model.exceptions.RegraDeNegocioException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,7 +35,7 @@ public class GlobalExceptionHandler {
             HttpServletRequest request
     ) {
         br.com.weblib.scooby_doo_livro.domain.model.ApiErrorResponse errorResponse = new br.com.weblib.scooby_doo_livro.domain.model.ApiErrorResponse(
-                HttpStatus.NOT_FOUND.value(),
+                HttpStatus.BAD_REQUEST.value(),
                 "Entrada inválida",
                 e.getMessage(),
                 request.getRequestURI()
@@ -70,6 +71,19 @@ public class GlobalExceptionHandler {
                 request.getRequestURI()
         );
 
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+    @ExceptionHandler(RegraDeNegocioException.class)
+    public ResponseEntity<ApiErrorResponse> handleRegraDeNegocio(
+            RegraDeNegocioException e,
+            HttpServletRequest request
+    ) {
+        ApiErrorResponse errorResponse = new ApiErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                "Regra de negócio violada",
+                e.getMessage(),
+                request.getRequestURI()
+        );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 

@@ -10,7 +10,9 @@ public record LivroDTO(
     String autor,
     String capa,
     Integer ano,
-    List<EnumCategoria> categorias
+    String sinopse,
+    List<EnumCategoria> categorias,
+    Double avaliacaoMedia
 ) {
     public LivroDTO(Livro livro) {
             this(
@@ -19,7 +21,9 @@ public record LivroDTO(
                     livro.getAutor(),
                     livro.getCapa(),
                     livro.getAno(),
-                    livro.getCategorias()
+                    livro.getSinopse(),
+                    livro.getCategorias(),
+                    livro.getAvaliacaoMedia()
             );
         }
 }
