@@ -1,20 +1,17 @@
 package br.com.weblib.scooby_doo_livro.domain.service;
 
-import br.com.weblib.scooby_doo_livro.Repository.LivroRepository;
 import br.com.weblib.scooby_doo_livro.Repository.StatusLeituraRepository;
-import br.com.weblib.scooby_doo_livro.Repository.UsuarioRepository; // Novo Import
 import br.com.weblib.scooby_doo_livro.domain.model.Livro.Livro;
-import br.com.weblib.scooby_doo_livro.domain.model.Livro.LivroDTO;
+import br.com.weblib.scooby_doo_livro.domain.model.Livro.LivroResumoDTO;
 import br.com.weblib.scooby_doo_livro.domain.model.StatusLeitura.AtualizarStatusDTO;
 import br.com.weblib.scooby_doo_livro.domain.model.StatusLeitura.StatusLeitura;
-import br.com.weblib.scooby_doo_livro.domain.model.Usuario.Usuario; // Novo Import
+import br.com.weblib.scooby_doo_livro.domain.model.Usuario.Usuario;
 import br.com.weblib.scooby_doo_livro.domain.model.enums.EnumStatusLeitura;
 import br.com.weblib.scooby_doo_livro.domain.model.exceptions.LivroInvalidoParaFavoritarException;
-import br.com.weblib.scooby_doo_livro.domain.model.exceptions.RecursoNaoEncontradoException; // Assumindo que você tem essa classe
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import lombok.extern.slf4j.Slf4j; // Para logs profissionais
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -23,42 +20,37 @@ import java.util.List;
 public class StatusLeituraService {
 
     private final StatusLeituraRepository statusLeituraRepository;
-    private final LivroRepository livroRepository;
-    private final UsuarioRepository usuarioRepository; // Injeção necessária agora
+    private final LivroService livroService;
+    private final UsuarioService usuarioService;
 
+    @Transactional
     public void atualizarStatus(Long idUsuario, AtualizarStatusDTO dto) {
-        // 1. Busca o status existente (usando os IDs para navegação)
         var statusExistente = statusLeituraRepository.findByUsuarioIdAndLivroId(idUsuario, dto.idLivro());
 
         if (statusExistente.isPresent()) {
-            // Se já existe, apenas atualiza o enum (não precisa buscar Usuario/Livro no banco)
             StatusLeitura status = statusExistente.get();
             status.setStatusLeitura(dto.status());
             statusLeituraRepository.save(status);
         } else {
-            // 2. Se é novo, precisamos buscar as Entidades para instanciar o objeto
-            Usuario usuario = usuarioRepository.findById(idUsuario)
-                    .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário não encontrado"));
-
-            Livro livro = livroRepository.findById(dto.idLivro())
-                    .orElseThrow(() -> new RecursoNaoEncontradoException("Livro não encontrado"));
+            Usuario usuario = usuarioService.buscarEntidadePorId(idUsuario);
+            Livro livro = livroService.buscarEntidadePorId(dto.idLivro());
 
             StatusLeitura novoStatus = new StatusLeitura(usuario, livro, dto.status());
             statusLeituraRepository.save(novoStatus);
         }
-
-        System.out.println("Alteração de status executada para: " + dto.status());
     }
 
-    public List<LivroDTO> listarLivrosPorStatus(Long idUsuario, EnumStatusLeitura status) {
+    @Transactional(readOnly = true)
+    public List<LivroResumoDTO> listarLivrosPorStatus(Long idUsuario, EnumStatusLeitura status) {
         List<Livro> livros = statusLeituraRepository.findLivrosPorStatusDoUsuario(idUsuario, status);
 
         return livros.stream()
-                .map(LivroDTO::new)
+                .map(LivroResumoDTO::new)
                 .toList();
     }
 
-    public String getStatusAtual(long idUsuario, Long idLivro) {
+    @Transactional(readOnly = true)
+    public String getStatusAtual(Long idUsuario, Long idLivro) {
         return statusLeituraRepository.findByUsuarioIdAndLivroId(idUsuario, idLivro)
                 .map(s -> s.getStatusLeitura().name())
                 .orElse(null);

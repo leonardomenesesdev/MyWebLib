@@ -4,16 +4,16 @@ import br.com.weblib.scooby_doo_livro.Repository.LivroRepository;
 import br.com.weblib.scooby_doo_livro.domain.model.Livro.Livro;
 import br.com.weblib.scooby_doo_livro.domain.model.Livro.LivroDTO;
 import br.com.weblib.scooby_doo_livro.domain.model.Livro.LivroRequestDTO;
+import br.com.weblib.scooby_doo_livro.domain.model.Livro.LivroResumoDTO;
 import br.com.weblib.scooby_doo_livro.domain.model.enums.EnumCategoria;
+import br.com.weblib.scooby_doo_livro.domain.model.exceptions.RecursoNaoEncontradoException;
+import br.com.weblib.scooby_doo_livro.domain.model.exceptions.RegraDeNegocioException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -22,162 +22,127 @@ public class LivroService {
 
     private final LivroRepository livroRepository;
 
-    public Page<LivroDTO> listarLivros(Pageable pageable) {
-        // Busca a página de entidades já com categorias carregadas
-        Page<Livro> livrosPage =
-                livroRepository.findAllLivrosComCategorias(pageable);
 
-        // Converte Entidade -> DTO
-        return livrosPage.map(LivroDTO::new);
+    @Transactional(readOnly = true)
+    public Page<LivroResumoDTO> listarLivros(Pageable pageable) {
+        return livroRepository.findAllLivrosComCategorias(pageable)
+                .map(LivroResumoDTO::new);
     }
 
-    public Livro getLivroById(Long id) {
-        return livroRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Livro não encontrado com ID: " + id));
-    }
-
-    public LivroDTO getLivroDTOById(Long id) {
-        Livro livro = livroRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Livro não encontrado com ID: " + id));
+    @Transactional(readOnly = true)
+    public LivroDTO buscarPorId(Long id) {
+        Livro livro = buscarEntidadePorId(id);
         return new LivroDTO(livro);
     }
 
-    public List<Livro> buscarPorTitulo(String titulo) {
-        return livroRepository.findByTituloContainingIgnoreCase(titulo);
+    @Transactional(readOnly = true)
+    public List<
+            LivroResumoDTO> buscarPorTitulo(String titulo) {
+        return livroRepository.findByTituloContainingIgnoreCase(titulo)
+                .stream()
+                .map(LivroResumoDTO::new)
+                .toList();
     }
 
-    public List<Livro> getByAutor(String autor) {
-        return livroRepository.findByAutorContainingIgnoreCase(autor);
+    @Transactional(readOnly = true)
+    public List<LivroResumoDTO> buscarPorAutor(String autor) {
+        return livroRepository.findByAutorContainingIgnoreCase(autor)
+                .stream()
+                .map(LivroResumoDTO::new)
+                .toList();
     }
 
-    public List<LivroDTO> getByAutorOrTitulo(String termo){
-        List<Livro> livros = livroRepository.findByAutorContainingIgnoreCaseOrTituloContainingIgnoreCase(termo, termo);
-        List<LivroDTO> dtos = new ArrayList<>();
-        livros.forEach(livro -> {
-            LivroDTO livroDTO = new LivroDTO(livro);
-            dtos.add(livroDTO);
-        });
-        return dtos;
-    }
-    public List<Livro> buscarPorCategoria(EnumCategoria categoria) {
-        return livroRepository.findByCategoriasContaining(categoria);
+    @Transactional(readOnly = true)
+    public List<LivroResumoDTO> buscarPorAutorOuTitulo(String termo) {
+        return livroRepository.findByAutorContainingIgnoreCaseOrTituloContainingIgnoreCase(termo, termo)
+                .stream()
+                .map(LivroResumoDTO::new)
+                .toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<LivroResumoDTO> buscarPorCategoria(EnumCategoria categoria) {
+        return livroRepository.findByCategoriasContaining(categoria)
+                .stream()
+                .map(LivroResumoDTO::new)
+                .toList();
+    }
 
-    public LivroRequestDTO cadastrar(LivroRequestDTO dadosLivro) {
-        validarLivro(dadosLivro);
 
-        if (livroRepository.existsByTituloAndAutor(dadosLivro.titulo(),
-                dadosLivro.autor())) {
-            throw new IllegalArgumentException("Livro já cadastrado: " + dadosLivro.titulo());
+    @Transactional
+    public LivroDTO cadastrar(LivroRequestDTO dados) {
+        // Validação de Regra de Negócio (Duplicidade)
+        if (livroRepository.existsByTituloAndAutor(dados.titulo(), dados.autor())) {
+            throw new RegraDeNegocioException("Livro já cadastrado: " + dados.titulo());
         }
+
+        validarAno(dados.ano());
 
         Livro novoLivro = new Livro();
-
-        novoLivro.setTitulo(dadosLivro.titulo());
-        novoLivro.setAutor(dadosLivro.autor());
-        novoLivro.setCapa(dadosLivro.capa());
-        novoLivro.setAno(dadosLivro.ano());
-        novoLivro.setCategorias(dadosLivro.categorias());
-        novoLivro.setSinopse(dadosLivro.sinopse());
+        atualizarDadosEntidade(novoLivro, dados);
 
         livroRepository.save(novoLivro);
-        return dadosLivro;
-    }
 
-    private void validarLivro(Livro livro) throws IllegalArgumentException{
-        if (livro.getTitulo() == null || livro.getTitulo().trim().isEmpty()) {
-            throw new IllegalArgumentException("Título é obrigatório");
-        }
-        if (livro.getAutor() == null || livro.getAutor().trim().isEmpty()) {
-            throw new IllegalArgumentException("Autor é obrigatório");
-        }
-        if (livro.getCategorias() == null || livro.getCategorias().isEmpty()) {
-            throw new IllegalArgumentException("Pelo menos uma categoria é obrigatória");
-        }
-
-        int anoAtual = java.time.Year.now().getValue();
-
-        if (livro.getAno() != null && (livro.getAno() < 0 || livro.getAno() > anoAtual)) {
-            throw new IllegalArgumentException("Ano de publicação inválido");
-        }
-    }
-
-    private void validarLivro(LivroRequestDTO livro) throws IllegalArgumentException{
-        if (livro.titulo() == null || livro.titulo().trim().isEmpty()) {
-            throw new IllegalArgumentException("Título é obrigatório");
-        }
-        if (livro.autor() == null || livro.autor().trim().isEmpty()) {
-            throw new IllegalArgumentException("Autor é obrigatório");
-        }
-        if (livro.categorias() == null || livro.categorias().isEmpty()) {
-            throw new IllegalArgumentException("Pelo menos uma categoria é obrigatória");
-        }
-
-        int anoAtual = java.time.Year.now().getValue();
-
-        if (livro.ano() != null && (livro.ano() < 0 || livro.ano() > anoAtual)) {
-            throw new IllegalArgumentException("Ano de publicação inválido");
-        }
+        return new LivroDTO(novoLivro);
     }
 
     @Transactional
-    public LivroRequestDTO atualizar(Long id, LivroRequestDTO dadosAtualizados) {
-        validarLivro(dadosAtualizados);
+    public LivroDTO atualizar(Long id, LivroRequestDTO dados) {
+        Livro livro = buscarEntidadePorId(id);
 
-        Livro livroExistente = getLivroById(id);
-
-        if (dadosAtualizados.titulo() != null) {
-            livroExistente.setTitulo(dadosAtualizados.titulo());
+        if (dados.ano() != null) {
+            validarAno(dados.ano());
         }
 
-        if (dadosAtualizados.autor() != null) {
-            livroExistente.setAutor(dadosAtualizados.autor());
-        }
+        atualizarDadosEntidade(livro, dados);
 
-        if (dadosAtualizados.capa() != null) {
-            livroExistente.setCapa(dadosAtualizados.capa());
-        }
-
-        if (dadosAtualizados.ano() != null) {
-            livroExistente.setAno(dadosAtualizados.ano());
-        }
-
-        if (dadosAtualizados.categorias() != null && !dadosAtualizados.categorias().isEmpty()) {
-            livroExistente.setCategorias(dadosAtualizados.categorias());
-        }
-
-        if (dadosAtualizados.sinopse() != null) {
-            livroExistente.setSinopse(dadosAtualizados.sinopse());
-        }
-
-        livroRepository.save(livroExistente);
-        return dadosAtualizados;
+        livroRepository.save(livro);
+        return new LivroDTO(livro);
     }
 
     @Transactional
     public void atualizarMedia(Long idLivro, Double novaMedia) {
-        // Opção 1: Via JPA puro (Mais seguro para cache)
         Livro livro = buscarEntidadePorId(idLivro);
         livro.setAvaliacaoMedia(novaMedia);
         livroRepository.save(livro);
-
     }
 
     @Transactional
     public void delete(Long id) {
-        Livro livro = getLivroById(id);
-
-        livroRepository.delete(livro);
+        if (!livroRepository.existsById(id)) {
+            throw new RecursoNaoEncontradoException("Livro não encontrado para exclusão.");
+        }
+        livroRepository.deleteById(id);
     }
+
 
     public Livro buscarEntidadePorId(Long id) {
         return livroRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Livro não encontrado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Livro não encontrado com ID: " + id));
     }
+
     public boolean existePorId(Long id) {
         return livroRepository.existsById(id);
     }
 
-}
+    // converte livro em dto
+    private void atualizarDadosEntidade(Livro livro, LivroRequestDTO dados) {
+        if (dados.titulo() != null) livro.setTitulo(dados.titulo());
+        if (dados.autor() != null) livro.setAutor(dados.autor());
+        if (dados.capa() != null) livro.setCapa(dados.capa());
+        if (dados.ano() != null) livro.setAno(dados.ano());
+        if (dados.sinopse() != null) livro.setSinopse(dados.sinopse());
+        if (dados.categorias() != null && !dados.categorias().isEmpty()) {
+            livro.setCategorias(dados.categorias());
+        }
+    }
 
+    private void validarAno(Integer ano) {
+        if (ano != null) {
+            int anoAtual = java.time.Year.now().getValue();
+            if (ano < 0 || ano > anoAtual) {
+                throw new RegraDeNegocioException("Ano de publicação inválido.");
+            }
+        }
+    }
+}
