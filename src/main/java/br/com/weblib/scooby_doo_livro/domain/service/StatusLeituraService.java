@@ -1,15 +1,14 @@
 package br.com.weblib.scooby_doo_livro.domain.service;
 
-import br.com.weblib.scooby_doo_livro.Repository.StatusLeituraRepository;
-import br.com.weblib.scooby_doo_livro.domain.model.Livro.Livro;
-import br.com.weblib.scooby_doo_livro.domain.model.Livro.LivroResumoDTO;
-import br.com.weblib.scooby_doo_livro.domain.model.StatusLeitura.AtualizarStatusDTO;
-import br.com.weblib.scooby_doo_livro.domain.model.StatusLeitura.StatusLeitura;
-import br.com.weblib.scooby_doo_livro.domain.model.Usuario.Usuario;
+import br.com.weblib.scooby_doo_livro.repository.StatusLeituraRepository;
+import br.com.weblib.scooby_doo_livro.domain.model.Livro;
+import br.com.weblib.scooby_doo_livro.domain.dtos.response.LivroResumoDTO;
+import br.com.weblib.scooby_doo_livro.domain.dtos.request.AtualizarStatusDTO;
+import br.com.weblib.scooby_doo_livro.domain.model.StatusLeitura;
+import br.com.weblib.scooby_doo_livro.domain.model.Usuario;
 import br.com.weblib.scooby_doo_livro.domain.model.enums.EnumStatusLeitura;
 import br.com.weblib.scooby_doo_livro.domain.model.exceptions.LivroInvalidoParaFavoritarException;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j; // Para logs profissionais
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

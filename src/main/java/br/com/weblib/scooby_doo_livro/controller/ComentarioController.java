@@ -1,7 +1,7 @@
 package br.com.weblib.scooby_doo_livro.controller;
 
-import br.com.weblib.scooby_doo_livro.domain.model.Comentario.ComentarioRequestDTO;
-import br.com.weblib.scooby_doo_livro.domain.model.Comentario.ComentarioResponseDTO;
+import br.com.weblib.scooby_doo_livro.domain.dtos.request.ComentarioRequestDTO;
+import br.com.weblib.scooby_doo_livro.domain.dtos.response.ComentarioResponseDTO;
 import br.com.weblib.scooby_doo_livro.domain.service.ComentarioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

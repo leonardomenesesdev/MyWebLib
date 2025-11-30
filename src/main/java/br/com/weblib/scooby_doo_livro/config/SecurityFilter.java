@@ -1,6 +1,6 @@
 package br.com.weblib.scooby_doo_livro.config;
 
-import br.com.weblib.scooby_doo_livro.Repository.UsuarioRepository;
+import br.com.weblib.scooby_doo_livro.repository.UsuarioRepository;
 import br.com.weblib.scooby_doo_livro.domain.service.TokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

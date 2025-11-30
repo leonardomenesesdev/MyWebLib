@@ -1,23 +1,20 @@
 package br.com.weblib.scooby_doo_livro.domain.service;
 
-import br.com.weblib.scooby_doo_livro.Repository.ComentarioRepository;
-import br.com.weblib.scooby_doo_livro.Repository.LivroRepository;
-import br.com.weblib.scooby_doo_livro.domain.model.Comentario.Comentario;
-import br.com.weblib.scooby_doo_livro.domain.model.Comentario.ComentarioRequestDTO;
-import br.com.weblib.scooby_doo_livro.domain.model.Comentario.ComentarioResponseDTO;
-import br.com.weblib.scooby_doo_livro.domain.model.Livro.Livro;
-import br.com.weblib.scooby_doo_livro.domain.model.Usuario.UserRole;
-import br.com.weblib.scooby_doo_livro.domain.model.Usuario.Usuario;
+import br.com.weblib.scooby_doo_livro.repository.ComentarioRepository;
+import br.com.weblib.scooby_doo_livro.domain.model.Comentario;
+import br.com.weblib.scooby_doo_livro.domain.dtos.request.ComentarioRequestDTO;
+import br.com.weblib.scooby_doo_livro.domain.dtos.response.ComentarioResponseDTO;
+import br.com.weblib.scooby_doo_livro.domain.model.Livro;
+import br.com.weblib.scooby_doo_livro.domain.model.enums.UserRole;
+import br.com.weblib.scooby_doo_livro.domain.model.Usuario;
 import br.com.weblib.scooby_doo_livro.domain.model.exceptions.RecursoNaoEncontradoException;
 import br.com.weblib.scooby_doo_livro.domain.model.exceptions.RegraDeNegocioException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Date;
 

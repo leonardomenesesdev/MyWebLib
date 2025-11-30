@@ -1,6 +1,6 @@
 package br.com.weblib.scooby_doo_livro.controller.exceptions;
 
-import br.com.weblib.scooby_doo_livro.domain.model.ApiErrorResponse;
+import br.com.weblib.scooby_doo_livro.domain.dtos.response.ApiErrorResponse;
 import br.com.weblib.scooby_doo_livro.domain.model.exceptions.JWTTokenException;
 import br.com.weblib.scooby_doo_livro.domain.model.exceptions.LivroInvalidoParaFavoritarException;
 import br.com.weblib.scooby_doo_livro.domain.model.exceptions.RecursoNaoEncontradoException;
@@ -10,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.server.ResponseStatusException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -34,7 +33,7 @@ public class GlobalExceptionHandler {
             IllegalArgumentException e,
             HttpServletRequest request
     ) {
-        br.com.weblib.scooby_doo_livro.domain.model.ApiErrorResponse errorResponse = new br.com.weblib.scooby_doo_livro.domain.model.ApiErrorResponse(
+        ApiErrorResponse errorResponse = new ApiErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
                 "Entrada inválida",
                 e.getMessage(),
@@ -49,7 +48,7 @@ public class GlobalExceptionHandler {
             JWTTokenException e,
             HttpServletRequest request
     ) {
-        br.com.weblib.scooby_doo_livro.domain.model.ApiErrorResponse errorResponse = new br.com.weblib.scooby_doo_livro.domain.model.ApiErrorResponse(
+        ApiErrorResponse errorResponse = new ApiErrorResponse(
                 HttpStatus.NOT_FOUND.value(),
                 "Erro de autenticação.",
                 e.getMessage(),
@@ -64,7 +63,7 @@ public class GlobalExceptionHandler {
             LivroInvalidoParaFavoritarException e,
             HttpServletRequest request
     ) {
-        br.com.weblib.scooby_doo_livro.domain.model.ApiErrorResponse errorResponse = new br.com.weblib.scooby_doo_livro.domain.model.ApiErrorResponse(
+        ApiErrorResponse errorResponse = new ApiErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
                 "Falha ao favoritar o livro.",
                 e.getMessage(),

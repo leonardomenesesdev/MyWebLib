@@ -1,9 +1,8 @@
 package br.com.weblib.scooby_doo_livro.controller;
 
-import br.com.weblib.scooby_doo_livro.domain.model.Usuario.UserDetailsDTO;
-import br.com.weblib.scooby_doo_livro.domain.model.Usuario.UserProfileResponseDTO;
-import br.com.weblib.scooby_doo_livro.domain.model.Usuario.Usuario;
-import br.com.weblib.scooby_doo_livro.domain.model.Usuario.UsuarioUpdateDTO;
+import br.com.weblib.scooby_doo_livro.domain.dtos.response.UserDetailsDTO;
+import br.com.weblib.scooby_doo_livro.domain.dtos.response.UserProfileResponseDTO;
+import br.com.weblib.scooby_doo_livro.domain.dtos.request.UsuarioUpdateDTO;
 import br.com.weblib.scooby_doo_livro.domain.service.UsuarioService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;

@@ -1,10 +1,10 @@
 package br.com.weblib.scooby_doo_livro.domain.service;
 
-import br.com.weblib.scooby_doo_livro.Repository.LivroFavoritadoRepository;
-import br.com.weblib.scooby_doo_livro.domain.model.Livro.Livro;
-import br.com.weblib.scooby_doo_livro.domain.model.Livro.LivroResumoDTO;
-import br.com.weblib.scooby_doo_livro.domain.model.LivroFavoritado.LivroFavoritado;
-import br.com.weblib.scooby_doo_livro.domain.model.Usuario.Usuario;
+import br.com.weblib.scooby_doo_livro.repository.LivroFavoritadoRepository;
+import br.com.weblib.scooby_doo_livro.domain.model.Livro;
+import br.com.weblib.scooby_doo_livro.domain.dtos.response.LivroResumoDTO;
+import br.com.weblib.scooby_doo_livro.domain.model.LivroFavoritado;
+import br.com.weblib.scooby_doo_livro.domain.model.Usuario;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

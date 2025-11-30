@@ -1,9 +1,9 @@
 package br.com.weblib.scooby_doo_livro.domain.service;
 
-import br.com.weblib.scooby_doo_livro.Repository.AvaliacaoRepository;
-import br.com.weblib.scooby_doo_livro.domain.model.Avaliacao.Avaliacao;
-import br.com.weblib.scooby_doo_livro.domain.model.Livro.Livro;
-import br.com.weblib.scooby_doo_livro.domain.model.Usuario.Usuario;
+import br.com.weblib.scooby_doo_livro.repository.AvaliacaoRepository;
+import br.com.weblib.scooby_doo_livro.domain.model.Avaliacao;
+import br.com.weblib.scooby_doo_livro.domain.model.Livro;
+import br.com.weblib.scooby_doo_livro.domain.model.Usuario;
 import br.com.weblib.scooby_doo_livro.domain.model.exceptions.RecursoNaoEncontradoException;
 import br.com.weblib.scooby_doo_livro.domain.model.exceptions.RegraDeNegocioException;
 import lombok.RequiredArgsConstructor;

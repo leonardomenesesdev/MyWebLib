@@ -1,15 +1,13 @@
 package br.com.weblib.scooby_doo_livro.controller;
 
-import br.com.weblib.scooby_doo_livro.domain.model.Livro.LivroResumoDTO;
-import br.com.weblib.scooby_doo_livro.domain.model.Usuario.Usuario;
+import br.com.weblib.scooby_doo_livro.domain.dtos.response.LivroResumoDTO;
+import br.com.weblib.scooby_doo_livro.domain.model.Usuario;
 import br.com.weblib.scooby_doo_livro.domain.service.LivroFavoritadoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/livro/favoritos")

@@ -1,10 +1,10 @@
 package br.com.weblib.scooby_doo_livro.domain.service;
 
-import br.com.weblib.scooby_doo_livro.Repository.LivroRepository;
-import br.com.weblib.scooby_doo_livro.domain.model.Livro.Livro;
-import br.com.weblib.scooby_doo_livro.domain.model.Livro.LivroDTO;
-import br.com.weblib.scooby_doo_livro.domain.model.Livro.LivroRequestDTO;
-import br.com.weblib.scooby_doo_livro.domain.model.Livro.LivroResumoDTO;
+import br.com.weblib.scooby_doo_livro.repository.LivroRepository;
+import br.com.weblib.scooby_doo_livro.domain.model.Livro;
+import br.com.weblib.scooby_doo_livro.domain.dtos.response.LivroDTO;
+import br.com.weblib.scooby_doo_livro.domain.dtos.request.LivroRequestDTO;
+import br.com.weblib.scooby_doo_livro.domain.dtos.response.LivroResumoDTO;
 import br.com.weblib.scooby_doo_livro.domain.model.enums.EnumCategoria;
 import br.com.weblib.scooby_doo_livro.domain.model.exceptions.RecursoNaoEncontradoException;
 import br.com.weblib.scooby_doo_livro.domain.model.exceptions.RegraDeNegocioException;

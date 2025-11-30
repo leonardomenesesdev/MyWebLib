@@ -1,8 +1,8 @@
 package br.com.weblib.scooby_doo_livro.controller;
 
-import br.com.weblib.scooby_doo_livro.domain.model.Livro.LivroResumoDTO;
-import br.com.weblib.scooby_doo_livro.domain.model.StatusLeitura.AtualizarStatusDTO;
-import br.com.weblib.scooby_doo_livro.domain.model.Usuario.Usuario;
+import br.com.weblib.scooby_doo_livro.domain.dtos.response.LivroResumoDTO;
+import br.com.weblib.scooby_doo_livro.domain.dtos.request.AtualizarStatusDTO;
+import br.com.weblib.scooby_doo_livro.domain.model.Usuario;
 import br.com.weblib.scooby_doo_livro.domain.model.enums.EnumStatusLeitura;
 import br.com.weblib.scooby_doo_livro.domain.service.StatusLeituraService;
 import lombok.RequiredArgsConstructor;

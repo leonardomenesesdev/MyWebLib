@@ -1,12 +1,16 @@
 package br.com.weblib.scooby_doo_livro.domain.service;
 
-import br.com.weblib.scooby_doo_livro.Repository.AvaliacaoRepository;
-import br.com.weblib.scooby_doo_livro.Repository.LivroFavoritadoRepository;
-import br.com.weblib.scooby_doo_livro.Repository.StatusLeituraRepository;
-import br.com.weblib.scooby_doo_livro.Repository.UsuarioRepository;
-import br.com.weblib.scooby_doo_livro.domain.model.StatusLeitura.EstatisticasDTO;
-import br.com.weblib.scooby_doo_livro.domain.model.Usuario.*;
+import br.com.weblib.scooby_doo_livro.repository.AvaliacaoRepository;
+import br.com.weblib.scooby_doo_livro.repository.LivroFavoritadoRepository;
+import br.com.weblib.scooby_doo_livro.repository.StatusLeituraRepository;
+import br.com.weblib.scooby_doo_livro.repository.UsuarioRepository;
+import br.com.weblib.scooby_doo_livro.domain.dtos.request.UsuarioUpdateDTO;
+import br.com.weblib.scooby_doo_livro.domain.dtos.response.EstatisticasDTO;
+import br.com.weblib.scooby_doo_livro.domain.dtos.response.UserDetailsDTO;
+import br.com.weblib.scooby_doo_livro.domain.dtos.response.UserProfileResponseDTO;
+import br.com.weblib.scooby_doo_livro.domain.model.Usuario;
 import br.com.weblib.scooby_doo_livro.domain.model.enums.EnumStatusLeitura;
+import br.com.weblib.scooby_doo_livro.domain.model.enums.UserRole;
 import br.com.weblib.scooby_doo_livro.domain.model.exceptions.RecursoNaoEncontradoException;
 import br.com.weblib.scooby_doo_livro.domain.model.exceptions.RegraDeNegocioException; // ✅ Nova exceção
 import lombok.RequiredArgsConstructor;
