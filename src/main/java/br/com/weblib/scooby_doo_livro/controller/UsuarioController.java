@@ -1,9 +1,10 @@
 package br.com.weblib.scooby_doo_livro.controller;
 
-import br.com.weblib.scooby_doo_livro.domain.model.Usuario.UserDetailsDTO;
-import br.com.weblib.scooby_doo_livro.domain.model.Usuario.UserProfileResponseDTO;
-import br.com.weblib.scooby_doo_livro.domain.model.Usuario.Usuario;
+import br.com.weblib.scooby_doo_livro.domain.dtos.response.UserDetailsDTO;
+import br.com.weblib.scooby_doo_livro.domain.dtos.response.UserProfileResponseDTO;
+import br.com.weblib.scooby_doo_livro.domain.dtos.request.UsuarioUpdateDTO;
 import br.com.weblib.scooby_doo_livro.domain.service.UsuarioService;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -37,12 +38,9 @@ public class UsuarioController {
 
     @PutMapping("/{id}")
     public ResponseEntity<UserDetailsDTO> atualizar(@PathVariable Long id,
-                                             @RequestBody UserDetailsDTO usuario) {
-        logger.info("Recebida requisição para atualizar usuário ID: {}", id);
-
-        UserDetailsDTO atualizado = usuarioService.atualizar(id, usuario);
-
-        return ResponseEntity.ok(atualizado);
+                                                    @RequestBody @Valid UsuarioUpdateDTO dados) {
+        UserDetailsDTO usuarioAtualizado = usuarioService.atualizar(id, dados);
+        return ResponseEntity.ok(usuarioAtualizado);
     }
 
     @GetMapping("/perfil/{id}")

@@ -1,112 +1,73 @@
 package br.com.weblib.scooby_doo_livro.domain.service;
 
-import br.com.weblib.scooby_doo_livro.Repository.AvaliacaoRepository;
-import br.com.weblib.scooby_doo_livro.Repository.LivroRepository;
-import br.com.weblib.scooby_doo_livro.Repository.UsuarioRepository;
-import br.com.weblib.scooby_doo_livro.domain.model.Avaliacao.Avaliacao;
-import br.com.weblib.scooby_doo_livro.domain.model.Livro.Livro;
-import br.com.weblib.scooby_doo_livro.domain.model.Usuario.Usuario;
+import br.com.weblib.scooby_doo_livro.repository.AvaliacaoRepository;
+import br.com.weblib.scooby_doo_livro.domain.model.Avaliacao;
+import br.com.weblib.scooby_doo_livro.domain.model.Livro;
+import br.com.weblib.scooby_doo_livro.domain.model.Usuario;
 import br.com.weblib.scooby_doo_livro.domain.model.exceptions.RecursoNaoEncontradoException;
-import org.springframework.beans.factory.annotation.Autowired;
+import br.com.weblib.scooby_doo_livro.domain.model.exceptions.RegraDeNegocioException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class AvaliacaoService {
 
-    @Autowired
-    private AvaliacaoRepository avaliacaoRepository;
-    @Autowired
-    private UsuarioRepository usuarioRepository;
-    @Autowired
-    private LivroRepository livroRepository;
+    private final AvaliacaoRepository avaliacaoRepository;
+    private final UsuarioService usuarioService;
+    private final LivroService livroService;
 
-    public AvaliacaoService(AvaliacaoRepository avaliacaoRepository) {
-        this.avaliacaoRepository = avaliacaoRepository;
-    }
-
+    @Transactional
     public Avaliacao avaliarLivro(Long livroId, Long usuarioId, Integer nota) {
         validarNota(nota);
-        Livro livro =
-                livroRepository.findById(livroId).orElseThrow(() -> new RecursoNaoEncontradoException(
-                        "Livro não encontrado"));
-        Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário não encontrado"));
 
-        Optional<Avaliacao> avaliacaoExistente =
-                avaliacaoRepository.findByLivroAndUsuario(livro, usuario);
+        Livro livro = livroService.buscarEntidadePorId(livroId);
+        Usuario usuario = usuarioService.buscarEntidadePorId(usuarioId);
 
-        Avaliacao avaliacao = avaliacaoExistente.orElse(new Avaliacao());
-        if (avaliacaoExistente.isEmpty()) {
-            avaliacao.setLivro(livro);
-            avaliacao.setUsuario(usuario);
-        }
+        Avaliacao avaliacao = avaliacaoRepository.findByLivroAndUsuario(livro, usuario)
+                .orElseGet(() -> {
+                    Avaliacao nova = new Avaliacao();
+                    nova.setLivro(livro);
+                    nova.setUsuario(usuario);
+                    return nova;
+                });
+
         avaliacao.setNota(nota);
-
         Avaliacao avaliacaoSalva = avaliacaoRepository.save(avaliacao);
 
-        // Recalcula a média geral do livro
-        atualizarMediaDoLivro(livro);
+        recalcularMedia(livro);
 
         return avaliacaoSalva;
     }
 
+    @Transactional
     public void removerAvaliacao(Long idLivro, Long idUsuario) {
-        Livro livro = livroRepository.findById(idLivro)
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Livro não encontrado"));
+        Avaliacao avaliacao = avaliacaoRepository.findByLivroIdAndUsuarioId(idLivro, idUsuario)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Avaliação não encontrada para remoção."));
 
-        Usuario usuario = usuarioRepository.findById(idUsuario)
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário não encontrado"));
+        avaliacaoRepository.delete(avaliacao);
 
-        Optional<Avaliacao> avaliacao =
-                avaliacaoRepository.findByLivroAndUsuario(livro, usuario);
-
-        if (avaliacao.isPresent()) {
-            avaliacaoRepository.delete(avaliacao.get());
-            atualizarMediaDoLivro(livro);
-        } else {
-            throw new RecursoNaoEncontradoException("Avaliação não " +
-                    "encontrada");
-        }
+        Livro livro = livroService.buscarEntidadePorId(idLivro);
+        recalcularMedia(livro);
     }
 
+    @Transactional(readOnly = true)
+    public Integer obterNotaDoUsuario(Long idLivro, Long idUsuario) {
+        return avaliacaoRepository.findByLivroIdAndUsuarioId(idLivro, idUsuario)
+                .map(Avaliacao::getNota)
+                .orElse(0);
+    }
 
-    private void atualizarMediaDoLivro(Livro livro) {
-        // Passo 1: O Banco calcula a média (retorna apenas um Double)
+    private void recalcularMedia(Livro livro) {
         Double novaMedia = avaliacaoRepository.obterMediaPorLivro(livro);
-
-        // Passo 2: Atualizamos o Livro com a nova média
-        // Opção A: Atualizar o objeto em memória e salvar (padrão JPA)
-        // livro.setAvaliacao_media(novaMedia);
-        // livroRepository.save(livro);
-
-        // Opção B (A que você pediu): Query direta de Update no repositório
-        livroRepository.atualizarMediaDoLivro(livro.getId(), novaMedia);
-
-        // Atualiza o objeto em memória caso ele seja retornado na resposta do controller
-        livro.setAvaliacaoMedia(novaMedia);
+        if (novaMedia == null) novaMedia = 0.0;
+        livroService.atualizarMedia(livro.getId(), novaMedia);
     }
 
     private void validarNota(Integer nota) {
         if (nota < 0 || nota > 5) {
-            throw new IllegalArgumentException("Nota deve ser entre 0 e 5");
+            throw new RegraDeNegocioException("A nota deve ser um valor entre 0 e 5.");
         }
-    }
-
-    public Integer obterNotaDoUsuario(Long idLivro, Long idUsuario) {
-        // Otimização: Não precisamos buscar o objeto Livro/Usuario inteiro se o repo suportar busca por ID,
-        // mas para manter consistência com o código do seu amigo:
-
-        Livro livro = livroRepository.findById(idLivro)
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Livro não encontrado"));
-
-        Usuario usuario = usuarioRepository.findById(idUsuario)
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário não encontrado"));
-
-        return avaliacaoRepository.findByLivroAndUsuario(livro, usuario)
-                .map(Avaliacao::getNota) // Se existir, pega a nota
-                .orElse(0);              // Se não existir (Optional empty), retorna 0
     }
 }
