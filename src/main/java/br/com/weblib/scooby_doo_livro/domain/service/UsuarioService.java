@@ -42,12 +42,10 @@ public class UsuarioService {
 
     @Transactional(readOnly = true)
     public UserDetailsDTO buscarPorId(Long id) {
-        // Uso direto do Repository aqui é aceitável, mas prefira buscarEntidade se quiser padronizar erro
         Usuario usuario = buscarEntidadePorId(id);
         return new UserDetailsDTO(usuario);
     }
 
-    // ✅ ASSINATURA CORRIGIDA: Recebe UsuarioUpdateDTO
     @Transactional
     public UserDetailsDTO atualizar(Long id, UsuarioUpdateDTO dados) {
 
@@ -74,13 +72,7 @@ public class UsuarioService {
             usuarioAlvo.setEmail(dados.email());
         }
 
-        // REMOVIDO: Lógica de atualização de senha.
-        // Se precisar trocar senha no futuro, crie um endpoint específico:
-        // PATCH /api/usuarios/{id}/senha
-
         Usuario usuarioSalvo = usuarioRepository.saveAndFlush(usuarioAlvo);
-
-        // Retorna os dados atualizados formatados para leitura
         return new UserDetailsDTO(usuarioSalvo);
     }
 
