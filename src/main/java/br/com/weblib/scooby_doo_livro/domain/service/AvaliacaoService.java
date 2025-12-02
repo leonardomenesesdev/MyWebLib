@@ -70,4 +70,7 @@ public class AvaliacaoService {
             throw new RegraDeNegocioException("A nota deve ser um valor entre 0 e 5.");
         }
     }
+    public long contarAvaliacoesDoUsuario(Long userId) {
+        return avaliacaoRepository.countByUsuarioId(userId);
+    }
 }

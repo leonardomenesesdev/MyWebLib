@@ -1,19 +1,17 @@
 package br.com.weblib.scooby_doo_livro.domain.service;
 
-import br.com.weblib.scooby_doo_livro.repository.AvaliacaoRepository;
-import br.com.weblib.scooby_doo_livro.repository.LivroFavoritadoRepository;
-import br.com.weblib.scooby_doo_livro.repository.StatusLeituraRepository;
 import br.com.weblib.scooby_doo_livro.repository.UsuarioRepository;
-import br.com.weblib.scooby_doo_livro.domain.dtos.request.UsuarioUpdateDTO;
 import br.com.weblib.scooby_doo_livro.domain.dtos.response.EstatisticasDTO;
 import br.com.weblib.scooby_doo_livro.domain.dtos.response.UserDetailsDTO;
 import br.com.weblib.scooby_doo_livro.domain.dtos.response.UserProfileResponseDTO;
+import br.com.weblib.scooby_doo_livro.domain.dtos.request.UsuarioUpdateDTO;
 import br.com.weblib.scooby_doo_livro.domain.model.Usuario;
 import br.com.weblib.scooby_doo_livro.domain.model.enums.EnumStatusLeitura;
 import br.com.weblib.scooby_doo_livro.domain.model.enums.UserRole;
 import br.com.weblib.scooby_doo_livro.domain.model.exceptions.RecursoNaoEncontradoException;
-import br.com.weblib.scooby_doo_livro.domain.model.exceptions.RegraDeNegocioException; // ✅ Nova exceção
+import br.com.weblib.scooby_doo_livro.domain.model.exceptions.RegraDeNegocioException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -23,14 +21,21 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor // ✅ Lombok resolve o construtor gigante
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
-    private final StatusLeituraRepository statusLeituraRepository;
-    private final LivroFavoritadoRepository livroFavoritadoRepository;
-    private final AvaliacaoRepository avaliacaoRepository;
+    private final StatusLeituraService statusLeituraService;
+    private final LivroFavoritadoService livroFavoritadoService;
+    private final AvaliacaoService avaliacaoService;
+    public UsuarioService(UsuarioRepository usuarioRepository,
+                          @Lazy StatusLeituraService statusLeituraService,
+                          @Lazy LivroFavoritadoService livroFavoritadoService,
+                          @Lazy AvaliacaoService avaliacaoService) {
+        this.usuarioRepository = usuarioRepository;
+        this.statusLeituraService = statusLeituraService;
+        this.livroFavoritadoService = livroFavoritadoService;
+        this.avaliacaoService = avaliacaoService;
+    }
 
     @Transactional(readOnly = true)
     public List<UserDetailsDTO> listarTodos() {
@@ -48,21 +53,20 @@ public class UsuarioService {
 
     @Transactional
     public UserDetailsDTO atualizar(Long id, UsuarioUpdateDTO dados) {
-
         Usuario usuarioAlvo = buscarEntidadePorId(id);
         Usuario usuarioLogado = getUsuarioAutenticado();
 
-        // 1. Segurança: Garante que só o dono altera o perfil
+        // Segurança
         if (!usuarioLogado.getId().equals(usuarioAlvo.getId())) {
             throw new RegraDeNegocioException("Você não tem permissão para alterar este perfil.");
         }
 
-        // 2. Atualiza Nome
+        // Atualiza Nome
         if (dados.nome() != null && !dados.nome().isBlank()) {
             usuarioAlvo.setNome(dados.nome());
         }
 
-        // 3. Atualiza Email (com verificação de conflito)
+        // Atualiza Email
         if (dados.email() != null && !dados.email().isBlank()
                 && !dados.email().equals(usuarioAlvo.getEmail())) {
 
@@ -93,16 +97,21 @@ public class UsuarioService {
 
     @Transactional(readOnly = true)
     public UserProfileResponseDTO buscarPerfilCompleto(Long id) {
+        // 1. Busca dados do domínio local (Usuario)
         Usuario usuario = buscarEntidadePorId(id);
 
-        long lendo = statusLeituraRepository.countByUsuarioIdAndStatusLeitura(id, EnumStatusLeitura.LENDO);
-        long lido = statusLeituraRepository.countByUsuarioIdAndStatusLeitura(id, EnumStatusLeitura.LIDO);
-        long queroLer = statusLeituraRepository.countByUsuarioIdAndStatusLeitura(id, EnumStatusLeitura.QUERO_LER);
-        long favoritos = livroFavoritadoRepository.countByUsuarioId(id);
+        // 2. Delega a contagem para os especialistas (Outros Services)
+        // Nota: Você precisará garantir que esses métodos existam nos services respectivos
+        long lendo = statusLeituraService.contarPorStatus(id, EnumStatusLeitura.LENDO);
+        long lido = statusLeituraService.contarPorStatus(id, EnumStatusLeitura.LIDO);
+        long queroLer = statusLeituraService.contarPorStatus(id, EnumStatusLeitura.QUERO_LER);
 
+        long favoritos = livroFavoritadoService.contarFavoritos(id);
 
-        long avaliacoes = 0;
+        // Se ainda não implementou no AvaliacaoService, pode deixar 0 ou implementar lá
+        long avaliacoes = avaliacaoService.contarAvaliacoesDoUsuario(id);
 
+        // 3. Monta o DTO
         EstatisticasDTO stats = new EstatisticasDTO(queroLer, lendo, lido, favoritos, avaliacoes);
 
         return new UserProfileResponseDTO(usuario, stats);
@@ -115,14 +124,16 @@ public class UsuarioService {
     }
 
     public List<UserDetailsDTO> buscarUsuarioPorNome(String nome) {
-        List<UserDetailsDTO> usuariosFiltrados = usuarioRepository.findByNomeContainingIgnoreCase(nome);
+        List<UserDetailsDTO> usuariosFiltrados = usuarioRepository.findByNomeContainingIgnoreCase(nome)
+                .stream()
+                .map(u -> new UserDetailsDTO(u.id(), u.nome(), u.email(), u.role()))
+                .toList();
 
         if (usuariosFiltrados.isEmpty()) {
             throw new RecursoNaoEncontradoException("Nenhum usuário encontrado com o nome: '" + nome + "'");
         }
         return usuariosFiltrados;
     }
-
     private Usuario getUsuarioAutenticado() {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();

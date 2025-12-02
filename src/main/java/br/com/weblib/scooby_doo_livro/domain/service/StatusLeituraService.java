@@ -9,18 +9,25 @@ import br.com.weblib.scooby_doo_livro.domain.model.Usuario;
 import br.com.weblib.scooby_doo_livro.domain.model.enums.EnumStatusLeitura;
 import br.com.weblib.scooby_doo_livro.domain.model.exceptions.LivroInvalidoParaFavoritarException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class StatusLeituraService {
 
     private final StatusLeituraRepository statusLeituraRepository;
     private final LivroService livroService;
     private final UsuarioService usuarioService;
+    public StatusLeituraService(StatusLeituraRepository statusLeituraRepository,
+                                LivroService livroService,
+                                @Lazy UsuarioService usuarioService) { // <--- O PULO DO GATO
+        this.statusLeituraRepository = statusLeituraRepository;
+        this.livroService = livroService;
+        this.usuarioService = usuarioService;
+    }
 
     @Transactional
     public void atualizarStatus(Long idUsuario, AtualizarStatusDTO dto) {
@@ -62,5 +69,8 @@ public class StatusLeituraService {
         if (status.getStatusLeitura() == EnumStatusLeitura.QUERO_LER) {
             throw new LivroInvalidoParaFavoritarException("Não é permitido favoritar livros da lista 'Quero Ler'.");
         }
+    }
+    public long contarPorStatus(Long userId, EnumStatusLeitura status) {
+        return statusLeituraRepository.countByUsuarioIdAndStatusLeitura(userId, status);
     }
 }

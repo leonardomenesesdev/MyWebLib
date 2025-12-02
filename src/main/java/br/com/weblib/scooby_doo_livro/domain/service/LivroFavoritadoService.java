@@ -1,5 +1,6 @@
 package br.com.weblib.scooby_doo_livro.domain.service;
 
+import br.com.weblib.scooby_doo_livro.domain.model.enums.EnumStatusLeitura;
 import br.com.weblib.scooby_doo_livro.repository.LivroFavoritadoRepository;
 import br.com.weblib.scooby_doo_livro.domain.model.Livro;
 import br.com.weblib.scooby_doo_livro.domain.dtos.response.LivroResumoDTO;
@@ -18,7 +19,6 @@ public class LivroFavoritadoService {
 
     private final LivroFavoritadoRepository favoritoRepository;
 
-    // Injeção de Services (Orquestração Correta)
     private final StatusLeituraService statusLeituraService;
     private final LivroService livroService;
     private final UsuarioService usuarioService;
@@ -39,7 +39,6 @@ public class LivroFavoritadoService {
         Livro livro = livroService.buscarEntidadePorId(idLivro);
         Usuario usuario = usuarioService.buscarEntidadePorId(idUsuario);
 
-        // 3. Persistência
         LivroFavoritado novoFavorito = new LivroFavoritado();
         novoFavorito.setLivro(livro);
         novoFavorito.setUsuario(usuario);
@@ -60,5 +59,8 @@ public class LivroFavoritadoService {
                 .stream()
                 .map(favorito -> new LivroResumoDTO(favorito.getLivro()))
                 .toList();
+    }
+    public long contarFavoritos(Long userId) {
+        return favoritoRepository.countByUsuarioId(userId);
     }
 }
