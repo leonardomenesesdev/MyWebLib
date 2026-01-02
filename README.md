@@ -24,8 +24,7 @@ Você pode acessar o frontend do projeto no seguinte repositório: https://githu
 ## ⚙️ Configuração e Instalação
 
 ### Pré-requisitos
-* Java 21 JDK instalado
-* Node.js (v20 ou superior)
+* Java 21 JDK instalado 
 * PostgreSQL instalado e rodando
 
 ### 1. Configuração do Banco de Dados
